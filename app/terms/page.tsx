@@ -1,0 +1,1 @@
+import { PageHero } from "@/components/PageHero";export default function Page(){return <><PageHero eyebrow="Legal" title="Terms and conditions"><p>Placeholder legal page for Phase 1.</p></PageHero><article className="mx-auto max-w-3xl px-4 py-16 text-black/65"><p>This page must be replaced with reviewed booking and website terms before accepting live bookings.</p></article></>}

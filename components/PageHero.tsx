@@ -1,0 +1,2 @@
+import type { ReactNode } from "react";
+export function PageHero({eyebrow,title,children}:{eyebrow:string;title:string;children:ReactNode}){return <section className="bg-ink text-white"><div className="mx-auto max-w-7xl px-4 py-20 lg:px-8"><p className="text-xs font-semibold uppercase tracking-[.28em] text-gold-400">{eyebrow}</p><h1 className="mt-4 max-w-4xl font-serif text-4xl font-semibold sm:text-5xl">{title}</h1><div className="mt-5 max-w-2xl text-lg text-white/70">{children}</div></div></section>}

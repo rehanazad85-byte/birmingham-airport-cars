@@ -1,0 +1,2 @@
+import { PageHero } from "@/components/PageHero";import { QuoteForm } from "@/components/QuoteForm";
+export default function Page(){return <><PageHero eyebrow="Phase 1 quote system" title="Get an illustrative airport transfer fare"><p>Select one of the development test journeys below. Live address lookup and final booking confirmation will be added in a later phase.</p></PageHero><section className="mx-auto max-w-5xl px-4 py-16"><QuoteForm/></section></>}
