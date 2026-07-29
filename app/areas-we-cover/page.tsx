@@ -1,3 +1,44 @@
-import { PageHero } from "@/components/PageHero";import Link from "next/link";
-const areas=["Walsall","Sutton Coldfield","Wolverhampton","West Bromwich","Dudley","Birmingham","Solihull","Cannock"];
-export default function Page(){return <><PageHero eyebrow="Local coverage" title="Airport transfers across the West Midlands"><p>Phase 1 introduces a scalable area-page structure ready for dedicated local landing pages and airport fare content.</p></PageHero><section className="mx-auto max-w-7xl px-4 py-16 lg:px-8"><div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{areas.map(a=><div className="rounded-xl border p-6" key={a}><h2 className="font-serif text-2xl">{a}</h2><p className="mt-2 text-sm text-black/60">Fixed-price airport transfers and pre-booked travel.</p></div>)}</div><Link href="/book-now" className="mt-10 inline-block rounded-lg bg-gold-500 px-6 py-3 font-semibold">Check a fare</Link></section></>}
+import Link from "next/link";
+import { PageHero } from "@/components/PageHero";
+import { locations, locationSlugs } from "@/lib/locations";
+
+const futureAreas = ["Birmingham", "Solihull", "Cannock"] as const;
+
+export default function Page() {
+  return (
+    <>
+      <PageHero eyebrow="Local coverage" title="Airport transfers across the West Midlands">
+        <p>Explore dedicated local guidance for pre-booked airport travel from towns across the region.</p>
+      </PageHero>
+      <section className="mx-auto max-w-7xl px-4 py-16 lg:px-8">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {locationSlugs.map((slug) => {
+            const location = locations[slug];
+            return (
+              <Link
+                className="group rounded-xl border p-6 transition hover:border-gold-500 hover:shadow-sm"
+                href={`/areas-we-cover/${slug}`}
+                key={slug}
+              >
+                <h2 className="font-serif text-2xl group-hover:text-gold-600">{location.name}</h2>
+                <p className="mt-2 text-sm leading-6 text-black/60">
+                  Local pickup information, airport coverage and useful transfer FAQs.
+                </p>
+                <span className="mt-4 inline-block text-sm font-semibold">View area guide →</span>
+              </Link>
+            );
+          })}
+          {futureAreas.map((area) => (
+            <div className="rounded-xl border p-6" key={area}>
+              <h2 className="font-serif text-2xl">{area}</h2>
+              <p className="mt-2 text-sm text-black/60">Fixed-price airport transfers and pre-booked travel.</p>
+            </div>
+          ))}
+        </div>
+        <Link href="/book-now" className="mt-10 inline-block rounded-lg bg-gold-500 px-6 py-3 font-semibold">
+          Check a fare
+        </Link>
+      </section>
+    </>
+  );
+}
