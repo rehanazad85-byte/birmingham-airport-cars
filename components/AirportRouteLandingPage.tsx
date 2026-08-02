@@ -40,6 +40,9 @@ export function AirportRouteLandingPage({ route }: { route: AirportRoute }) {
       <h1 className="mt-4 max-w-4xl font-serif text-4xl font-semibold sm:text-5xl">{location.name} to Birmingham Airport Transfers</h1>
       <p className="mt-5 max-w-2xl text-lg leading-8 text-white/70">Pre-book a door-to-terminal journey with a confirmed price, a vehicle suited to the party and collection planned around your flight.</p>
       <Link href="/book-now" className="mt-8 inline-block rounded-full bg-gold-500 px-7 py-4 font-semibold text-black hover:bg-gold-400">Get an airport transfer quote</Link>
+      <p className="mt-4 text-sm text-white/70">
+        Call <a href="tel:07474234244" className="font-semibold underline">07474 234244</a> or email <a href="mailto:info@birminghamairportcars.co.uk" className="font-semibold underline">info@birminghamairportcars.co.uk</a>.
+      </p>
     </div></section>
 
     <section className="mx-auto grid max-w-7xl gap-12 px-4 py-16 lg:grid-cols-[1fr_.72fr] lg:px-8">
@@ -78,6 +81,6 @@ export function AirportRouteLandingPage({ route }: { route: AirportRoute }) {
       <aside className="rounded-2xl bg-cream p-7"><BriefcaseBusiness className="text-gold-500"/><h2 className="mt-4 font-serif text-3xl">Business airport travel</h2><p className="mt-3 leading-7 text-black/65">Companies arranging regular travel for staff or guests can discuss planned account requirements.</p><Link className="mt-5 inline-block font-semibold underline" href="/business-accounts">Explore business accounts</Link></aside>
     </section>
 
-    <section className="bg-cream"><div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-6 px-4 py-14 sm:flex-row sm:items-center lg:px-8"><div><p className="text-sm font-semibold uppercase tracking-widest text-gold-600">Request your journey</p><h2 className="mt-2 font-serif text-3xl">Travelling from {location.name} to Birmingham Airport?</h2></div><Link href="/book-now" className="rounded-full bg-ink px-7 py-4 font-semibold text-white">Get a quote</Link></div></section>
+    <section className="bg-cream"><div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-6 px-4 py-14 sm:flex-row sm:items-center lg:px-8"><div><p className="text-sm font-semibold uppercase tracking-widest text-gold-600">Request your journey</p><h2 className="mt-2 font-serif text-3xl">Travelling from {location.name} to Birmingham Airport?</h2><p className="mt-3 text-sm text-black/65">Call <a href="tel:07474234244" className="font-semibold underline">07474 234244</a> or email <a href="mailto:info@birminghamairportcars.co.uk" className="font-semibold underline">info@birminghamairportcars.co.uk</a>.</p></div><Link href="/book-now" className="rounded-full bg-ink px-7 py-4 font-semibold text-white">Get a quote</Link></div></section>
   </>;
 }
