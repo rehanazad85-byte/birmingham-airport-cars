@@ -1,23 +1,40 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { AirportRouteLandingPage } from "@/components/AirportRouteLandingPage";
-import { airportRoutes, airportRouteSlugs, isAirportRouteSlug } from "@/lib/airport-routes";
+import { LocationLandingPage } from "@/components/LocationLandingPage";
+import { isLocationSlug, locations, locationSlugs } from "@/lib/locations";
 
-type PageProps = { params: Promise<{ slug: string }> };
+type PageProps = {
+  params: Promise<{ slug: string }>;
+};
 
 export function generateStaticParams() {
-  return airportRouteSlugs.map((slug) => ({ slug }));
+  return locationSlugs.map((slug) => ({ slug }));
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  if (!isAirportRouteSlug(slug)) return {};
-  const route = airportRoutes[slug];
-  return { title: route.metaTitle, description: route.metaDescription, alternates: { canonical: `/airport-transfers/${route.slug}` } };
+
+  if (!isLocationSlug(slug)) {
+    return {};
+  }
+
+  const location = locations[slug];
+
+  return {
+    title: location.metaTitle,
+    description: location.metaDescription,
+    alternates: {
+      canonical: `/areas-we-cover/${location.slug}`,
+    },
+  };
 }
 
-export default async function AirportRoutePage({ params }: PageProps) {
+export default async function LocationPage({ params }: PageProps) {
   const { slug } = await params;
-  if (!isAirportRouteSlug(slug)) notFound();
-  return <AirportRouteLandingPage route={airportRoutes[slug]} />;
+
+  if (!isLocationSlug(slug)) {
+    notFound();
+  }
+
+  return <LocationLandingPage location={locations[slug]} />;
 }
