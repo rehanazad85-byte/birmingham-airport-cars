@@ -1,10 +1,12 @@
 import { BriefcaseBusiness, CarFront, Plane, Radar, UsersRound } from "lucide-react";
 import Link from "next/link";
 import { RoutePricingGuidance } from "@/components/RoutePricingGuidance";
+import { RouteDirectAnswer } from "@/components/RouteDirectAnswer";
 import { airports } from "@/lib/airports";
 import type { AirportRoute } from "@/lib/airport-routes";
 import { airportRoutes } from "@/lib/airport-routes";
 import { locations } from "@/lib/locations";
+import { getPublicRoutePricing } from "@/lib/route-pricing-examples";
 
 const vehicleOptions = [
   ["Saloon", "For up to four passengers, subject to the luggage combination."],
@@ -19,6 +21,7 @@ export function AirportRouteLandingPage({ route }: { route: AirportRoute }) {
   const airport = airports[route.destinationAirport];
   const isHeathrowRoute = route.destinationAirport === "heathrow";
   const canonical = `https://birminghamairportcars.co.uk/airport-transfers/${route.slug}`;
+  const approvedPricing = getPublicRoutePricing(route.slug);
   const breadcrumbJsonLd = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
@@ -50,16 +53,14 @@ export function AirportRouteLandingPage({ route }: { route: AirportRoute }) {
       <Link href="/book-now" className="mt-8 inline-block rounded-full bg-gold-500 px-7 py-4 font-semibold text-black hover:bg-gold-400">Get an airport transfer quote</Link>
     </div></section>
 
+    <RouteDirectAnswer route={route} airport={airport} location={location} pricing={approvedPricing} />
+
     <section className="mx-auto grid max-w-7xl gap-12 px-4 py-16 lg:grid-cols-[1fr_.72fr] lg:px-8">
       <article><p className="text-sm font-semibold uppercase tracking-widest text-gold-600">Route guide</p><h2 className="mt-2 font-serif text-3xl">A planned transfer from {location.name}</h2>
         <div className="mt-5 space-y-4 leading-7 text-black/65">{route.introduction.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}</div>
         <p className="mt-4 leading-7 text-black/65">{route.routeContext}</p>
       </article>
-      {isHeathrowRoute ? <RoutePricingGuidance route={route} airport={airport} /> :
-        <aside className="rounded-2xl bg-cream p-7"><Plane className="text-gold-500"/><h2 className="mt-4 font-serif text-2xl">Fixed-price booking</h2>
-          <p className="mt-3 leading-7 text-black/65">The pickup, Birmingham Airport destination and requested details are checked before a fixed price is confirmed. The agreed journey is not priced by a running meter.</p>
-          <Link href="/book-now" className="mt-5 inline-block font-semibold underline">Check your journey</Link>
-        </aside>}
+      <RoutePricingGuidance pricing={approvedPricing} />
     </section>
 
     {isHeathrowRoute ? <section className="bg-cream"><div className="mx-auto grid max-w-7xl gap-6 px-4 py-16 md:grid-cols-3 lg:px-8">

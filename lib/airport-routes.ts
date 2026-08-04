@@ -33,8 +33,6 @@ export type AirportRoute = {
   introduction: string[];
   representativePickup: string;
   representativePostcode: string;
-  exampleSaloonFare?: number | null;
-  typicalFareRange?: { minimum: number; maximum: number } | null;
   distanceRange: string;
   journeyTimeRange: string;
   pickupGuidance: string;
@@ -46,7 +44,7 @@ export type AirportRoute = {
 export const airportRoutes: Record<AirportRouteSlug, AirportRoute> = {
   "walsall-to-birmingham-airport": {
     slug: "walsall-to-birmingham-airport", locationSlug: "walsall", destinationAirport: "birmingham",
-    representativePickup: "Walsall town centre", representativePostcode: "WS1 1TP", exampleSaloonFare: null, typicalFareRange: null,
+    representativePickup: "Walsall town centre", representativePostcode: "WS1 1TP",
     distanceRange: "Varies by exact pickup address", journeyTimeRange: "Varies by pickup time and road conditions",
     metaTitle: "Walsall to Birmingham Airport Transfers",
     metaDescription: "Pre-book a fixed-price transfer from Walsall to Birmingham Airport, with vehicle options, flight monitoring and door-to-terminal collection.",
@@ -66,7 +64,7 @@ export const airportRoutes: Record<AirportRouteSlug, AirportRoute> = {
   },
   "sutton-coldfield-to-birmingham-airport": {
     slug: "sutton-coldfield-to-birmingham-airport", locationSlug: "sutton-coldfield", destinationAirport: "birmingham",
-    representativePickup: "Sutton Coldfield town centre", representativePostcode: "B72 1PA", exampleSaloonFare: null, typicalFareRange: null,
+    representativePickup: "Sutton Coldfield town centre", representativePostcode: "B72 1PA",
     distanceRange: "Varies by exact pickup address", journeyTimeRange: "Varies by pickup time and road conditions",
     metaTitle: "Sutton Coldfield to Birmingham Airport Transfers",
     metaDescription: "Direct fixed-price transfers from Sutton Coldfield to Birmingham Airport, with planned pickups, flight monitoring and suitable vehicle choices.",
@@ -86,7 +84,7 @@ export const airportRoutes: Record<AirportRouteSlug, AirportRoute> = {
   },
   "wolverhampton-to-birmingham-airport": {
     slug: "wolverhampton-to-birmingham-airport", locationSlug: "wolverhampton", destinationAirport: "birmingham",
-    representativePickup: "Wolverhampton city centre", representativePostcode: "WV1 1SH", exampleSaloonFare: null, typicalFareRange: null,
+    representativePickup: "Wolverhampton city centre", representativePostcode: "WV1 1SH",
     distanceRange: "Varies by exact pickup address", journeyTimeRange: "Varies by pickup time and road conditions",
     metaTitle: "Wolverhampton to Birmingham Airport Transfers",
     metaDescription: "Book a direct Wolverhampton to Birmingham Airport transfer with fixed-price confirmation, vehicle choice and return-flight monitoring.",
@@ -106,7 +104,7 @@ export const airportRoutes: Record<AirportRouteSlug, AirportRoute> = {
   },
   "west-bromwich-to-birmingham-airport": {
     slug: "west-bromwich-to-birmingham-airport", locationSlug: "west-bromwich", destinationAirport: "birmingham",
-    representativePickup: "West Bromwich town centre", representativePostcode: "B70 8DJ", exampleSaloonFare: null, typicalFareRange: null,
+    representativePickup: "West Bromwich town centre", representativePostcode: "B70 8DJ",
     distanceRange: "Varies by exact pickup address", journeyTimeRange: "Varies by pickup time and road conditions",
     metaTitle: "West Bromwich to Birmingham Airport Transfers",
     metaDescription: "Fixed-price airport transfers from West Bromwich and nearby Sandwell areas to Birmingham Airport, pre-booked for your flight.",
@@ -126,7 +124,7 @@ export const airportRoutes: Record<AirportRouteSlug, AirportRoute> = {
   },
   "dudley-to-birmingham-airport": {
     slug: "dudley-to-birmingham-airport", locationSlug: "dudley", destinationAirport: "birmingham",
-    representativePickup: "Dudley town centre", representativePostcode: "DY1 1NS", exampleSaloonFare: null, typicalFareRange: null,
+    representativePickup: "Dudley town centre", representativePostcode: "DY1 1NS",
     distanceRange: "Varies by exact pickup address", journeyTimeRange: "Varies by pickup time and road conditions",
     metaTitle: "Dudley to Birmingham Airport Transfers",
     metaDescription: "Pre-book a Dudley to Birmingham Airport transfer with fixed-price confirmation, door-to-terminal travel and vehicle options for your group.",
@@ -146,7 +144,7 @@ export const airportRoutes: Record<AirportRouteSlug, AirportRoute> = {
   },
   "birmingham-to-birmingham-airport": {
     slug: "birmingham-to-birmingham-airport", locationSlug: "birmingham", destinationAirport: "birmingham",
-    representativePickup: "Birmingham city centre", representativePostcode: "B1 1BB", exampleSaloonFare: null, typicalFareRange: null,
+    representativePickup: "Birmingham city centre", representativePostcode: "B1 1BB",
     distanceRange: "Varies by exact pickup address", journeyTimeRange: "Varies by pickup time and road conditions",
     metaTitle: "Birmingham to Birmingham Airport Transfers",
     metaDescription: "Book a fixed-price transfer from Birmingham city neighbourhoods, hotels and businesses to Birmingham Airport with planned collection.",
@@ -166,7 +164,7 @@ export const airportRoutes: Record<AirportRouteSlug, AirportRoute> = {
   },
   "solihull-to-birmingham-airport": {
     slug: "solihull-to-birmingham-airport", locationSlug: "solihull", destinationAirport: "birmingham",
-    representativePickup: "Solihull town centre", representativePostcode: "B91 3RG", exampleSaloonFare: null, typicalFareRange: null,
+    representativePickup: "Solihull town centre", representativePostcode: "B91 3RG",
     distanceRange: "Varies by exact pickup address", journeyTimeRange: "Varies by pickup time and road conditions",
     metaTitle: "Solihull to Birmingham Airport Transfers",
     metaDescription: "Direct fixed-price transfers from Solihull, Shirley and surrounding villages to Birmingham Airport, planned around your flight.",
@@ -186,7 +184,7 @@ export const airportRoutes: Record<AirportRouteSlug, AirportRoute> = {
   },
   "cannock-to-birmingham-airport": {
     slug: "cannock-to-birmingham-airport", locationSlug: "cannock", destinationAirport: "birmingham",
-    representativePickup: "Cannock town centre", representativePostcode: "WS11 1WS", exampleSaloonFare: null, typicalFareRange: null,
+    representativePickup: "Cannock town centre", representativePostcode: "WS11 1WS",
     distanceRange: "Varies by exact pickup address", journeyTimeRange: "Varies by pickup time and road conditions",
     metaTitle: "Cannock to Birmingham Airport Transfers",
     metaDescription: "Pre-book a fixed-price transfer from Cannock and nearby Staffordshire communities to Birmingham Airport, with return-flight monitoring.",
@@ -206,7 +204,7 @@ export const airportRoutes: Record<AirportRouteSlug, AirportRoute> = {
   },
   "walsall-to-heathrow-airport": {
     slug: "walsall-to-heathrow-airport", locationSlug: "walsall", destinationAirport: "heathrow",
-    representativePickup: "Walsall town centre", representativePostcode: "WS1 1TP", exampleSaloonFare: null, typicalFareRange: null,
+    representativePickup: "Walsall town centre", representativePostcode: "WS1 1TP",
     distanceRange: "approximately 120–135 miles", journeyTimeRange: "typically around 2 hours 15 minutes–3 hours 15 minutes",
     metaTitle: "Walsall to Heathrow Airport Transfers",
     metaDescription: "Plan a fixed-price Walsall to Heathrow Airport transfer with terminal-aware collection guidance, flight monitoring and vehicles for different luggage needs.",
@@ -227,7 +225,7 @@ export const airportRoutes: Record<AirportRouteSlug, AirportRoute> = {
   },
   "sutton-coldfield-to-heathrow-airport": {
     slug: "sutton-coldfield-to-heathrow-airport", locationSlug: "sutton-coldfield", destinationAirport: "heathrow",
-    representativePickup: "Sutton Coldfield town centre", representativePostcode: "B72 1PA", exampleSaloonFare: null, typicalFareRange: null,
+    representativePickup: "Sutton Coldfield town centre", representativePostcode: "B72 1PA",
     distanceRange: "approximately 115–130 miles", journeyTimeRange: "typically around 2 hours 10 minutes–3 hours 10 minutes",
     metaTitle: "Sutton Coldfield to Heathrow Airport Transfers",
     metaDescription: "Book a Sutton Coldfield to Heathrow Airport transfer from homes, hotels and businesses, with fixed-price confirmation and flight monitoring.",
@@ -248,7 +246,7 @@ export const airportRoutes: Record<AirportRouteSlug, AirportRoute> = {
   },
   "wolverhampton-to-heathrow-airport": {
     slug: "wolverhampton-to-heathrow-airport", locationSlug: "wolverhampton", destinationAirport: "heathrow",
-    representativePickup: "Wolverhampton city centre", representativePostcode: "WV1 1SH", exampleSaloonFare: null, typicalFareRange: null,
+    representativePickup: "Wolverhampton city centre", representativePostcode: "WV1 1SH",
     distanceRange: "approximately 125–140 miles", journeyTimeRange: "typically around 2 hours 20 minutes–3 hours 20 minutes",
     metaTitle: "Wolverhampton to Heathrow Airport Transfers",
     metaDescription: "Pre-book a Wolverhampton to Heathrow Airport transfer with a confirmed fixed quote, terminal guidance and options for groups and luggage.",
@@ -269,7 +267,7 @@ export const airportRoutes: Record<AirportRouteSlug, AirportRoute> = {
   },
   "west-bromwich-to-heathrow-airport": {
     slug: "west-bromwich-to-heathrow-airport", locationSlug: "west-bromwich", destinationAirport: "heathrow",
-    representativePickup: "West Bromwich town centre", representativePostcode: "B70 8DJ", exampleSaloonFare: null, typicalFareRange: null,
+    representativePickup: "West Bromwich town centre", representativePostcode: "B70 8DJ",
     distanceRange: "approximately 115–130 miles", journeyTimeRange: "typically around 2 hours 10 minutes–3 hours 10 minutes",
     metaTitle: "West Bromwich to Heathrow Airport Transfers",
     metaDescription: "Arrange a West Bromwich to Heathrow Airport transfer with direct pickup, fixed-price confirmation, flight monitoring and terminal guidance.",
@@ -290,7 +288,7 @@ export const airportRoutes: Record<AirportRouteSlug, AirportRoute> = {
   },
   "dudley-to-heathrow-airport": {
     slug: "dudley-to-heathrow-airport", locationSlug: "dudley", destinationAirport: "heathrow",
-    representativePickup: "Dudley town centre", representativePostcode: "DY1 1NS", exampleSaloonFare: null, typicalFareRange: null,
+    representativePickup: "Dudley town centre", representativePostcode: "DY1 1NS",
     distanceRange: "approximately 120–135 miles", journeyTimeRange: "typically around 2 hours 15 minutes–3 hours 15 minutes",
     metaTitle: "Dudley to Heathrow Airport Transfers",
     metaDescription: "Plan a Dudley to Heathrow Airport transfer from across the borough, with a confirmed quote, flight monitoring and suitable vehicle options.",
@@ -311,7 +309,7 @@ export const airportRoutes: Record<AirportRouteSlug, AirportRoute> = {
   },
   "birmingham-to-heathrow-airport": {
     slug: "birmingham-to-heathrow-airport", locationSlug: "birmingham", destinationAirport: "heathrow",
-    representativePickup: "Birmingham city centre", representativePostcode: "B1 1BB", exampleSaloonFare: null, typicalFareRange: null,
+    representativePickup: "Birmingham city centre", representativePostcode: "B1 1BB",
     distanceRange: "approximately 105–120 miles", journeyTimeRange: "typically around 2 hours–3 hours",
     metaTitle: "Birmingham to Heathrow Airport Transfers",
     metaDescription: "Book a Birmingham to Heathrow Airport transfer from a home, hotel or workplace with fixed-price confirmation and terminal-aware planning.",
@@ -332,7 +330,7 @@ export const airportRoutes: Record<AirportRouteSlug, AirportRoute> = {
   },
   "solihull-to-heathrow-airport": {
     slug: "solihull-to-heathrow-airport", locationSlug: "solihull", destinationAirport: "heathrow",
-    representativePickup: "Solihull town centre", representativePostcode: "B91 3RG", exampleSaloonFare: null, typicalFareRange: null,
+    representativePickup: "Solihull town centre", representativePostcode: "B91 3RG",
     distanceRange: "approximately 100–115 miles", journeyTimeRange: "typically around 1 hour 50 minutes–2 hours 50 minutes",
     metaTitle: "Solihull to Heathrow Airport Transfers",
     metaDescription: "Arrange a direct Solihull to Heathrow Airport transfer from the town or surrounding villages, planned for your terminal and luggage.",
@@ -353,7 +351,7 @@ export const airportRoutes: Record<AirportRouteSlug, AirportRoute> = {
   },
   "cannock-to-heathrow-airport": {
     slug: "cannock-to-heathrow-airport", locationSlug: "cannock", destinationAirport: "heathrow",
-    representativePickup: "Cannock town centre", representativePostcode: "WS11 1WS", exampleSaloonFare: null, typicalFareRange: null,
+    representativePickup: "Cannock town centre", representativePostcode: "WS11 1WS",
     distanceRange: "approximately 125–140 miles", journeyTimeRange: "typically around 2 hours 20 minutes–3 hours 25 minutes",
     metaTitle: "Cannock to Heathrow Airport Transfers",
     metaDescription: "Pre-book a Cannock to Heathrow Airport transfer from Cannock Chase communities with a confirmed quote and flight-aware return planning.",

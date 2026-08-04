@@ -1,44 +1,51 @@
 import Link from "next/link";
-import type { AirportRoute } from "@/lib/airport-routes";
-import type { Airport } from "@/lib/airports";
+import type { ApprovedRoutePricing } from "@/lib/route-pricing-examples";
+import { calculateCostPerPassenger, formatApprovedMoney } from "@/lib/route-pricing-examples";
+import { vehicleCapacities } from "@/lib/vehicle-capacity";
 
-export function RoutePricingGuidance({
-  route,
-  airport,
-}: {
-  route: AirportRoute;
-  airport: Airport;
-}) {
-  const hasApprovedFare = Boolean(route.typicalFareRange) || typeof route.exampleSaloonFare === "number";
+export function RoutePricingGuidance({ pricing }: { pricing: ApprovedRoutePricing | null }) {
+  const hasExample = typeof pricing?.approvedExampleFare === "number";
+  const hasRange =
+    typeof pricing?.approvedTypicalFareMinimum === "number" &&
+    typeof pricing?.approvedTypicalFareMaximum === "number";
+  const perPassenger = pricing ? calculateCostPerPassenger(pricing) : null;
 
   return (
     <aside className="rounded-2xl bg-cream p-7">
-      <p className="text-sm font-semibold uppercase tracking-widest text-gold-600">
-        Pricing guidance
-      </p>
-      <h2 className="mt-2 font-serif text-2xl">Fixed quotation for your journey</h2>
-      {route.typicalFareRange ? (
+      <p className="text-sm font-semibold uppercase tracking-widest text-gold-600">Pricing guidance</p>
+      <h2 className="mt-2 font-serif text-2xl">Quotation for your journey</h2>
+
+      {hasRange ? (
         <p className="mt-4 text-lg font-semibold">
-          Typical saloon fare: £{route.typicalFareRange.minimum}–£{route.typicalFareRange.maximum}
+          Typical approved {vehicleCapacities[pricing.vehicleType].label.toLowerCase()} fare guidance: £
+          {formatApprovedMoney(pricing.approvedTypicalFareMinimum!)}–£
+          {formatApprovedMoney(pricing.approvedTypicalFareMaximum!)}.
         </p>
       ) : null}
-      {typeof route.exampleSaloonFare === "number" ? (
+
+      {hasExample ? (
         <p className="mt-3 leading-7 text-black/65">
-          Example: {route.representativePostcode} {route.representativePickup} to {airport.name} from £
-          {route.exampleSaloonFare}.
+          Approved representative journey: {pricing.representativePickupName}, {pricing.representativePickupPostcode} to {pricing.destinationTerminal} by {vehicleCapacities[pricing.vehicleType].label.toLowerCase()}, from £{formatApprovedMoney(pricing.approvedExampleFare!)}.
         </p>
       ) : null}
-      {hasApprovedFare ? (
+
+      {perPassenger !== null && pricing?.passengerCount ? (
+        <p className="mt-3 text-sm leading-6 text-black/60">
+          £{formatApprovedMoney(perPassenger)} per person when the vehicle fare is shared by {pricing.passengerCount} passengers. This is a simple division of the total vehicle fare for comparison; passengers are not charged individually.
+        </p>
+      ) : null}
+
+      {pricing ? (
         <p className="mt-4 text-sm leading-6 text-black/60">
-          The example is based on the named representative pickup. Your confirmed fare depends on the
-          exact address, selected vehicle and booking requirements.
+          {pricing.conditions} The confirmed fare depends on the exact pickup address, selected vehicle and booking requirements, and is provided before booking.
         </p>
       ) : (
         <p className="mt-4 leading-7 text-black/65">
-          Enter your exact pickup location for a confirmed fixed quotation.
+          Prices depend on the exact pickup address, vehicle and journey requirements. Enter your pickup location to receive a confirmed quotation.
         </p>
       )}
-      <Link href="/book-now" className="mt-5 inline-block font-semibold underline">
+
+      <Link href="/book-now" className="mt-5 inline-block rounded-full bg-ink px-6 py-3 font-semibold text-white">
         Get an exact quote
       </Link>
     </aside>
