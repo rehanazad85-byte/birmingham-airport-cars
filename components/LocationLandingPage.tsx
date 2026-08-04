@@ -90,9 +90,6 @@ export function LocationLandingPage({ location }: { location: Location }) {
           >
             Check an illustrative fare
           </Link>
-          <p className="mt-4 text-sm text-white/70">
-            Call <a href="tel:07474234244" className="font-semibold underline">07474 234244</a> or email <a href="mailto:info@birminghamairportcars.co.uk" className="font-semibold underline">info@birminghamairportcars.co.uk</a>.
-          </p>
         </div>
       </section>
 
@@ -146,6 +143,12 @@ export function LocationLandingPage({ location }: { location: Location }) {
                 </li>
               ))}
             </ul>
+            <Link
+              className="mt-5 inline-block font-semibold underline"
+              href={`/airport-transfers/${location.slug}-to-heathrow-airport`}
+            >
+              View the {location.name} to Heathrow Airport guide
+            </Link>
           </article>
         </div>
       </section>
@@ -226,9 +229,6 @@ export function LocationLandingPage({ location }: { location: Location }) {
           <div>
             <p className="text-sm font-semibold uppercase tracking-widest text-gold-600">Plan your transfer</p>
             <h2 className="mt-2 font-serif text-3xl">Travelling from {location.name}?</h2>
-            <p className="mt-3 text-sm text-black/65">
-              Call <a href="tel:07474234244" className="font-semibold underline">07474 234244</a> or email <a href="mailto:info@birminghamairportcars.co.uk" className="font-semibold underline">info@birminghamairportcars.co.uk</a>.
-            </p>
           </div>
           <Link href="/book-now" className="rounded-full bg-ink px-7 py-4 font-semibold text-white">
             Check an illustrative fare
