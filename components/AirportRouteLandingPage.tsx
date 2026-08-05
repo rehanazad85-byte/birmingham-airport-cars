@@ -2,11 +2,13 @@ import { BriefcaseBusiness, CarFront, Plane, Radar, UsersRound } from "lucide-re
 import Link from "next/link";
 import { RoutePricingGuidance } from "@/components/RoutePricingGuidance";
 import { RouteDirectAnswer } from "@/components/RouteDirectAnswer";
+import { RouteAuthorityAnswers } from "@/components/RouteAuthorityAnswers";
 import { airports } from "@/lib/airports";
 import type { AirportRoute } from "@/lib/airport-routes";
 import { airportRoutes } from "@/lib/airport-routes";
 import { locations } from "@/lib/locations";
 import { getPublicRoutePricing } from "@/lib/route-pricing-examples";
+import { routeAuthorityContent } from "@/lib/route-authority-content";
 
 const vehicleOptions = [
   ["Saloon", "For up to four passengers, subject to the luggage combination."],
@@ -22,6 +24,7 @@ export function AirportRouteLandingPage({ route }: { route: AirportRoute }) {
   const isHeathrowRoute = route.destinationAirport === "heathrow";
   const canonical = `https://birminghamairportcars.co.uk/airport-transfers/${route.slug}`;
   const approvedPricing = getPublicRoutePricing(route.slug);
+  const authorityContent = routeAuthorityContent[route.slug];
   const breadcrumbJsonLd = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
@@ -53,7 +56,7 @@ export function AirportRouteLandingPage({ route }: { route: AirportRoute }) {
       <Link href="/book-now" className="mt-8 inline-block rounded-full bg-gold-500 px-7 py-4 font-semibold text-black hover:bg-gold-400">Get an airport transfer quote</Link>
     </div></section>
 
-    <RouteDirectAnswer route={route} airport={airport} location={location} pricing={approvedPricing} />
+    <RouteDirectAnswer route={route} airport={airport} location={location} pricing={approvedPricing} authorityContent={authorityContent} />
 
     <section className="mx-auto grid max-w-7xl gap-12 px-4 py-16 lg:grid-cols-[1fr_.72fr] lg:px-8">
       <article><p className="text-sm font-semibold uppercase tracking-widest text-gold-600">Route guide</p><h2 className="mt-2 font-serif text-3xl">A planned transfer from {location.name}</h2>
@@ -80,6 +83,8 @@ export function AirportRouteLandingPage({ route }: { route: AirportRoute }) {
       <article className="rounded-2xl border p-7"><Plane className="text-gold-500"/><h2 className="mt-4 font-serif text-2xl">Pickup and drop-off</h2><p className="mt-3 leading-7 text-black/65">{route.pickupGuidance} {airport.terminalSummary}</p></article>
       <article className="rounded-2xl border p-7"><UsersRound className="text-gold-500"/><h2 className="mt-4 font-serif text-2xl">Passenger guidance</h2><p className="mt-3 leading-7 text-black/65">Include children in the passenger total and count every large suitcase. Mention wheelchairs, pushchairs or unusual items before the vehicle is confirmed.</p></article>
     </section>
+
+    <RouteAuthorityAnswers airport={airport} location={location} content={authorityContent} />
 
     <section className="bg-ink text-white"><div className="mx-auto max-w-4xl px-4 py-16 lg:px-8">
       <p className="text-sm font-semibold uppercase tracking-widest text-gold-400">Useful answers</p><h2 className="mt-2 font-serif text-3xl">{location.name} to {airport.name} FAQs</h2>

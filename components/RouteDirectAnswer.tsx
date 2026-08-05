@@ -5,17 +5,20 @@ import type { Location } from "@/lib/locations";
 import type { ApprovedRoutePricing } from "@/lib/route-pricing-examples";
 import { formatApprovedMoney } from "@/lib/route-pricing-examples";
 import { vehicleCapacities } from "@/lib/vehicle-capacity";
+import type { RouteAuthorityContent } from "@/lib/route-authority-content";
 
 export function RouteDirectAnswer({
   route,
   airport,
   location,
   pricing,
+  authorityContent,
 }: {
   route: AirportRoute;
   airport: Airport;
   location: Location;
   pricing: ApprovedRoutePricing | null;
+  authorityContent: RouteAuthorityContent;
 }) {
   const hasExample = typeof pricing?.approvedExampleFare === "number";
   const hasRange =
@@ -50,6 +53,7 @@ export function RouteDirectAnswer({
         <p className="mt-3 max-w-5xl leading-7 text-black/65">
           Choose a vehicle for the complete passenger and large-suitcase totals. Saloon and Executive combinations are more restricted at four passengers; Estate, MPV and Large MPV options provide different capacities.
         </p>
+        <p className="mt-3 max-w-5xl leading-7 text-black/65">{authorityContent.directAnswerBookingNote}</p>
         <Link href="/book-now" className="mt-5 inline-block font-semibold underline">Check your exact journey</Link>
       </div>
     </section>
