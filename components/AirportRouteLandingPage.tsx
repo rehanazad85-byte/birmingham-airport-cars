@@ -3,6 +3,8 @@ import Link from "next/link";
 import { RoutePricingGuidance } from "@/components/RoutePricingGuidance";
 import { RouteDirectAnswer } from "@/components/RouteDirectAnswer";
 import { RouteAuthorityAnswers } from "@/components/RouteAuthorityAnswers";
+import { AirportKnowledge } from "@/components/AirportKnowledge";
+import { airportKnowledge } from "@/lib/airport-knowledge";
 import { airports } from "@/lib/airports";
 import type { AirportRoute } from "@/lib/airport-routes";
 import { airportRoutes } from "@/lib/airport-routes";
@@ -21,6 +23,7 @@ const vehicleOptions = [
 export function AirportRouteLandingPage({ route }: { route: AirportRoute }) {
   const location = locations[route.locationSlug];
   const airport = airports[route.destinationAirport];
+  const knowledge = airportKnowledge[route.destinationAirport];
   const isHeathrowRoute = route.destinationAirport === "heathrow";
   const canonical = `https://birminghamairportcars.co.uk/airport-transfers/${route.slug}`;
   const approvedPricing = getPublicRoutePricing(route.slug);
@@ -86,6 +89,8 @@ export function AirportRouteLandingPage({ route }: { route: AirportRoute }) {
 
     <RouteAuthorityAnswers airport={airport} location={location} content={authorityContent} />
 
+    <AirportKnowledge airport={airport} knowledge={knowledge} />
+
     <section className="bg-ink text-white"><div className="mx-auto max-w-4xl px-4 py-16 lg:px-8">
       <p className="text-sm font-semibold uppercase tracking-widest text-gold-400">Useful answers</p><h2 className="mt-2 font-serif text-3xl">{location.name} to {airport.name} FAQs</h2>
       <div className="mt-8 space-y-4">{route.faqs.map(({ question, answer }) => <article className="rounded-xl border border-white/10 bg-white/5 p-6" key={question}><h3 className="font-semibold">{question}</h3><p className="mt-3 leading-7 text-white/65">{answer}</p></article>)}</div>
@@ -99,8 +104,6 @@ export function AirportRouteLandingPage({ route }: { route: AirportRoute }) {
       </div>
       <aside className="rounded-2xl bg-cream p-7"><BriefcaseBusiness className="text-gold-500"/><h2 className="mt-4 font-serif text-3xl">Business airport travel</h2><p className="mt-3 leading-7 text-black/65">Companies arranging regular travel for staff or guests can discuss planned account requirements.</p><Link className="mt-5 inline-block font-semibold underline" href="/business-accounts">Explore business accounts</Link></aside>
     </section>
-
-    {isHeathrowRoute ? <section className="mx-auto max-w-7xl px-4 pb-16 lg:px-8"><article className="rounded-2xl border p-7"><Plane className="text-gold-500"/><h2 className="mt-4 font-serif text-3xl">Heathrow terminals and collection</h2><p className="mt-3 leading-7 text-black/65">{airport.terminalSummary}</p><p className="mt-4 leading-7 text-black/65">{airport.collectionGuidance}</p></article></section> : null}
 
     <section className="bg-cream"><div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-6 px-4 py-14 sm:flex-row sm:items-center lg:px-8"><div><p className="text-sm font-semibold uppercase tracking-widest text-gold-600">Request your journey</p><h2 className="mt-2 font-serif text-3xl">Travelling from {location.name} to {airport.name}?</h2></div><Link href="/book-now" className="rounded-full bg-ink px-7 py-4 font-semibold text-white">Get a quote</Link></div></section>
   </>;

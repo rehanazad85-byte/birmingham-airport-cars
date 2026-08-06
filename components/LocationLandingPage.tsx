@@ -88,7 +88,7 @@ export function LocationLandingPage({ location }: { location: Location }) {
             href="/book-now"
             className="mt-8 inline-block rounded-full bg-gold-500 px-7 py-4 font-semibold text-black hover:bg-gold-400"
           >
-            Check an illustrative fare
+            Request an airport transfer quote
           </Link>
         </div>
       </section>
@@ -231,7 +231,7 @@ export function LocationLandingPage({ location }: { location: Location }) {
             <h2 className="mt-2 font-serif text-3xl">Travelling from {location.name}?</h2>
           </div>
           <Link href="/book-now" className="rounded-full bg-ink px-7 py-4 font-semibold text-white">
-            Check an illustrative fare
+            Request an airport transfer quote
           </Link>
         </div>
       </section>
