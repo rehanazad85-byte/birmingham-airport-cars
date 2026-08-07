@@ -1,5 +1,6 @@
 import type { TestJourney } from "@/lib/journeys";
 import type { VehicleType } from "@/lib/pricing";
+import type { SelectedPlace } from "@/lib/places";
 
 export type JourneyType = "one-way" | "return";
 
@@ -7,6 +8,11 @@ export interface PlaceSelection {
   label: string;
   placeId?: string;
   fullAddress?: string;
+}
+
+export interface AddressQuoteSelection {
+  inputValue: string;
+  place: SelectedPlace | null;
 }
 
 export interface ExtraStop extends PlaceSelection {
@@ -74,5 +80,21 @@ export function validateJourneySelection(
     errors.journey = "An online estimate is not available for this pickup and destination combination. Please contact us for a quotation.";
   }
 
+  return errors;
+}
+
+export function validateAddressSelections(values: {
+  pickup: AddressQuoteSelection;
+  destination: AddressQuoteSelection;
+  passengers: number;
+  luggage: number;
+}): QuoteFieldErrors {
+  const errors: QuoteFieldErrors = {};
+  if (!values.pickup.inputValue.trim()) errors.pickup = "Please enter a pickup address.";
+  else if (!values.pickup.place) errors.pickup = "Select a valid pickup address from the suggestions.";
+  if (!values.destination.inputValue.trim()) errors.destination = "Please enter a destination address.";
+  else if (!values.destination.place) errors.destination = "Select a valid destination from the suggestions.";
+  if (!Number.isInteger(values.passengers) || values.passengers < 1) errors.passengers = "Enter at least one passenger.";
+  if (!Number.isInteger(values.luggage) || values.luggage < 0) errors.luggage = "Enter a valid luggage quantity.";
   return errors;
 }
