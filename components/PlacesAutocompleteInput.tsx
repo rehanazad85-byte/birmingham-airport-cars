@@ -15,14 +15,43 @@ declare global {
   }
 }
 
+type PlacesAutocomplete = InstanceType<NonNullable<Window["google"]>["maps"]["places"]["Autocomplete"]>;
+
+const PLACES_READY_TIMEOUT_MS = 10_000;
+const PLACES_READY_POLL_MS = 50;
+
+export function waitForGooglePlaces(
+  isReady: () => boolean = () => Boolean(window.google?.maps.places?.Autocomplete),
+  timeoutMs = PLACES_READY_TIMEOUT_MS,
+  pollMs = PLACES_READY_POLL_MS,
+): Promise<void> {
+  if (isReady()) return Promise.resolve();
+
+  return new Promise((resolve, reject) => {
+    const startedAt = Date.now();
+    const check = () => {
+      if (isReady()) {
+        resolve();
+        return;
+      }
+      if (Date.now() - startedAt >= timeoutMs) {
+        reject(new Error("Google Places did not become available"));
+        return;
+      }
+      globalThis.setTimeout(check, pollMs);
+    };
+    check();
+  });
+}
+
 function loadPlaces(apiKey: string): Promise<void> {
-  if (window.google?.maps.places) return Promise.resolve();
+  if (window.google?.maps.places?.Autocomplete) return Promise.resolve();
   if (window.__bacGooglePlacesPromise) return window.__bacGooglePlacesPromise;
   window.__bacGooglePlacesPromise = new Promise((resolve, reject) => {
     const script = document.createElement("script");
     script.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(apiKey)}&libraries=places&loading=async`;
     script.async = true;
-    script.onload = () => resolve();
+    script.onload = () => waitForGooglePlaces().then(resolve, reject);
     script.onerror = () => reject(new Error("Places could not be loaded"));
     document.head.appendChild(script);
   });
@@ -44,6 +73,7 @@ export function PlacesAutocompleteInput({ label, value, selectedPlace, onChange,
   const id = useId();
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
   const [placesEnabled, setPlacesEnabled] = useState(false);
+  const autocompleteRef = useRef<PlacesAutocomplete | null>(null);
 
   useEffect(() => {
     if (!apiKey || !inputRef.current) return;
@@ -51,17 +81,21 @@ export function PlacesAutocompleteInput({ label, value, selectedPlace, onChange,
     let cancelled = false;
     loadPlaces(apiKey).then(() => {
       if (cancelled || !inputRef.current || !window.google) return;
-      const autocomplete = new window.google.maps.places.Autocomplete(inputRef.current, {
-        componentRestrictions: { country: "gb" },
-        fields: ["address_components", "formatted_address", "geometry", "name", "place_id", "types"],
-      });
+      const autocomplete = autocompleteRef.current ?? new window.google.maps.places.Autocomplete(inputRef.current, {
+          componentRestrictions: { country: "gb" },
+          fields: ["address_components", "formatted_address", "geometry", "name", "place_id", "types"],
+        });
+      autocompleteRef.current = autocomplete;
       setPlacesEnabled(true);
       listener = autocomplete.addListener("place_changed", () => {
         const place = normaliseGooglePlace(autocomplete.getPlace());
         if (place) onChange(place.displayAddress, place);
       });
     }).catch(() => setPlacesEnabled(false));
-    return () => { cancelled = true; listener?.remove(); };
+    return () => {
+      cancelled = true;
+      listener?.remove();
+    };
   }, [apiKey, onChange]);
 
   const fallbackListId = `${id}-fallback`;
