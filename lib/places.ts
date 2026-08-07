@@ -27,6 +27,15 @@ export interface GooglePlaceLike {
   geometry?: { location?: { lat(): number; lng(): number } };
 }
 
+export interface GooglePlaceNewLike {
+  formattedAddress?: string | null;
+  id?: string;
+  displayName?: string | null;
+  types?: string[];
+  addressComponents?: Array<{ longText?: string; shortText?: string; types: string[] }>;
+  location?: { lat(): number; lng(): number };
+}
+
 function component(place: GooglePlaceLike, type: string) {
   return place.address_components?.find((item) => item.types.includes(type));
 }
@@ -47,6 +56,30 @@ export function normaliseGooglePlace(place: GooglePlaceLike): SelectedPlace | nu
     locality: locality?.long_name,
     country: component(place, "country")?.short_name,
     name: place.name,
+    types: place.types ?? [],
+  };
+}
+
+function newComponent(place: GooglePlaceNewLike, type: string) {
+  return place.addressComponents?.find((item) => item.types.includes(type));
+}
+
+export function normaliseGooglePlaceNew(place: GooglePlaceNewLike): SelectedPlace | null {
+  const latitude = place.location?.lat();
+  const longitude = place.location?.lng();
+  const displayAddress = place.formattedAddress ?? place.displayName;
+  if (!displayAddress || !place.id || !Number.isFinite(latitude) || !Number.isFinite(longitude)) return null;
+
+  const locality = newComponent(place, "postal_town") ?? newComponent(place, "locality");
+  return {
+    displayAddress,
+    placeId: place.id,
+    latitude: latitude as number,
+    longitude: longitude as number,
+    postcode: newComponent(place, "postal_code")?.longText,
+    locality: locality?.longText,
+    country: newComponent(place, "country")?.shortText,
+    name: place.displayName ?? undefined,
     types: place.types ?? [],
   };
 }
