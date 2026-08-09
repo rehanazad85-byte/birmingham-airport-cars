@@ -40,6 +40,16 @@ export function getIllustrativeFare(distanceMiles: number, vehicle: VehicleType,
   return roundFareToNearestPound(calculateVehicleFare(distanceMiles, vehicle, config));
 }
 
+export function getRouteAwareIllustrativeFare(
+  existingJourneyDistanceMiles: number | undefined,
+  routeDistanceMiles: number | undefined,
+  vehicle: VehicleType,
+  config = pricingConfig,
+): number | null {
+  const distanceMiles = existingJourneyDistanceMiles ?? routeDistanceMiles;
+  return distanceMiles === undefined ? null : getIllustrativeFare(distanceMiles, vehicle, config);
+}
+
 export function formatGBP(amount: number): string {
   return new Intl.NumberFormat("en-GB", { style: "currency", currency: "GBP", maximumFractionDigits: 0 }).format(amount);
 }

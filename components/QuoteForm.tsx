@@ -1,7 +1,7 @@
 "use client";
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 import Link from "next/link";
-import { formatGBP, getIllustrativeFare, type VehicleType } from "@/lib/pricing";
+import { formatGBP, getRouteAwareIllustrativeFare, type VehicleType } from "@/lib/pricing";
 import { testJourneys } from "@/lib/journeys";
 import { validateVehicleCapacity, vehicleCapacities } from "@/lib/vehicle-capacity";
 import { mapPlacesToJourney, type SelectedPlace } from "@/lib/places";
@@ -14,14 +14,37 @@ const destinations = ["Birmingham Airport", "Heathrow Airport"];
 
 export function QuoteForm({compact=false}:{compact?:boolean}){
  const [pickup,setPickup]=useState(""); const [pickupPlace,setPickupPlace]=useState<SelectedPlace|null>(null); const [destination,setDestination]=useState(""); const [destinationPlace,setDestinationPlace]=useState<SelectedPlace|null>(null); const [journeyDate,setJourneyDate]=useState(""); const [journeyTime,setJourneyTime]=useState(""); const [vehicle,setVehicle]=useState<VehicleType>("saloon"); const [passengers,setPassengers]=useState(1); const [luggage,setLuggage]=useState(1); const [journeyType,setJourneyType]=useState<JourneyType>("one-way"); const [errors,setErrors]=useState<QuoteFieldErrors>({}); const [show,setShow]=useState(false);
+ const [estimatedFare,setEstimatedFare]=useState<number|null>(null); const [routeDurationSeconds,setRouteDurationSeconds]=useState<number|null>(null); const [isCalculating,setIsCalculating]=useState(false);
  const [minimumJourneyDate,setMinimumJourneyDate]=useState("");
  useEffect(()=>setMinimumJourneyDate(formatLocalDate(new Date())),[]);
  const journey=pickupPlace&&destinationPlace?mapPlacesToJourney(testJourneys,pickupPlace,destinationPlace):undefined;
- const capacity=vehicleCapacities[vehicle]; const capacityValidation=validateVehicleCapacity(vehicle,passengers,luggage); const fare=journey&&capacityValidation.valid?getIllustrativeFare(journey.distanceMiles,vehicle):null;
- const resetResult=()=>setShow(false);
+ const capacity=vehicleCapacities[vehicle]; const capacityValidation=validateVehicleCapacity(vehicle,passengers,luggage);
+ const resetResult=()=>{setShow(false);setEstimatedFare(null);setRouteDurationSeconds(null)};
  const updatePickup=useCallback((value:string,place:SelectedPlace|null)=>{setPickup(value);setPickupPlace(place);setShow(false);setErrors(current=>({...current,pickup:undefined,journey:undefined}))},[]);
  const updateDestination=useCallback((value:string,place:SelectedPlace|null)=>{setDestination(value);setDestinationPlace(place);setShow(false);setErrors(current=>({...current,destination:undefined,journey:undefined}))},[]);
- const submit=(event:FormEvent<HTMLFormElement>)=>{event.preventDefault();const nextErrors=validateAddressSelections({pickup:{inputValue:pickup,place:pickupPlace},destination:{inputValue:destination,place:destinationPlace},passengers,luggage});Object.assign(nextErrors,validateJourneyDateTime(journeyDate,journeyTime));if(!capacityValidation.valid)nextErrors.luggage=capacityValidation.message;setErrors(nextErrors);setShow(Object.keys(nextErrors).length===0)};
+ const submit=async(event:FormEvent<HTMLFormElement>)=>{
+  event.preventDefault();
+  if(isCalculating)return;
+  const nextErrors=validateAddressSelections({pickup:{inputValue:pickup,place:pickupPlace},destination:{inputValue:destination,place:destinationPlace},passengers,luggage});
+  Object.assign(nextErrors,validateJourneyDateTime(journeyDate,journeyTime));
+  if(!capacityValidation.valid)nextErrors.luggage=capacityValidation.message;
+  setErrors(nextErrors);
+  if(Object.keys(nextErrors).length>0||!pickupPlace||!destinationPlace)return resetResult();
+
+  setIsCalculating(true);setShow(false);setEstimatedFare(null);setRouteDurationSeconds(null);
+  try{
+   const response=await fetch("/api/route-distance",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({origin:{latitude:pickupPlace.latitude,longitude:pickupPlace.longitude},destination:{latitude:destinationPlace.latitude,longitude:destinationPlace.longitude}})});
+   if(!response.ok)throw new Error("Route unavailable");
+   const route=await response.json() as {distanceMiles?:unknown;durationSeconds?:unknown};
+   if(typeof route.distanceMiles!=="number"||!Number.isFinite(route.distanceMiles)||route.distanceMiles<0||typeof route.durationSeconds!=="number"||!Number.isFinite(route.durationSeconds)||route.durationSeconds<0)throw new Error("Invalid route result");
+   setEstimatedFare(getRouteAwareIllustrativeFare(journey?.distanceMiles,route.distanceMiles,vehicle));
+   setRouteDurationSeconds(route.durationSeconds);
+  }catch{
+   setEstimatedFare(null);setRouteDurationSeconds(null);
+  }finally{
+   setIsCalculating(false);setShow(true);
+  }
+ };
  return <form onSubmit={submit} noValidate className="rounded-2xl bg-white p-5 text-ink shadow-premium sm:p-7">
   <div className={`grid gap-4 ${compact?"sm:grid-cols-2":"md:grid-cols-2"}`}>
    <PlacesAutocompleteInput label="Pickup address" value={pickup} selectedPlace={pickupPlace} onChange={updatePickup} error={errors.pickup} placeholder="Enter pickup address or postcode" fallbackOptions={pickups}/>
@@ -34,8 +57,8 @@ export function QuoteForm({compact=false}:{compact?:boolean}){
    <label className="text-sm font-medium">Journey type<select value={journeyType} onChange={e=>{setJourneyType(e.target.value as JourneyType);resetResult()}} className="mt-1 w-full rounded-lg border border-black/15 px-3 py-3"><option value="one-way">One-way</option><option value="return">Return</option></select></label>
   </div>
   {!capacityValidation.valid&&!errors.luggage&&<p id="capacity-message" role="alert" className="mt-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{capacityValidation.message}</p>}
-  <button type="submit" className="mt-5 w-full rounded-lg bg-gold-500 px-6 py-4 font-semibold text-black hover:bg-gold-400">Calculate estimated fare</button>
-  {show&&!journey&&<div className="mt-6 rounded-xl border border-gold-500/30 bg-cream p-5"><h2 className="font-serif text-2xl font-semibold">Quotation review required</h2><p className="mt-3">We can provide a confirmed quotation for this journey once the pickup and destination details have been reviewed.</p><div className="mt-4 flex flex-col gap-3 sm:flex-row"><Link href="/contact" className="rounded-lg bg-ink px-5 py-3 text-center font-semibold text-white">Request Booking</Link><a href="tel:+441212222222" className="rounded-lg border border-ink px-5 py-3 text-center font-semibold text-ink">Call Now</a></div></div>}
-  {show&&journey&&fare!==null&&<div className="mt-6 rounded-xl border border-gold-500/30 bg-cream p-5"><h2 className="font-serif text-2xl font-semibold">Journey summary</h2><dl className="mt-4 grid gap-3 sm:grid-cols-2"><div><dt className="text-xs uppercase tracking-wider text-black/50">Pickup</dt><dd className="font-semibold">{pickupPlace?.displayAddress}</dd></div><div><dt className="text-xs uppercase tracking-wider text-black/50">Destination</dt><dd className="font-semibold">{destinationPlace?.displayAddress}</dd></div><div><dt className="text-xs uppercase tracking-wider text-black/50">Vehicle</dt><dd className="font-semibold">{capacity.label}</dd></div><div><dt className="text-xs uppercase tracking-wider text-black/50">Passenger count</dt><dd className="font-semibold">{passengers}</dd></div><div><dt className="text-xs uppercase tracking-wider text-black/50">Luggage</dt><dd className="font-semibold">{luggage} large suitcase{luggage===1?"":"s"}</dd></div><div><dt className="text-xs uppercase tracking-wider text-black/50">Journey type</dt><dd className="font-semibold">{journeyType==="return"?"Return":"One-way"}</dd></div><div><dt className="text-xs uppercase tracking-wider text-black/50">Estimated fare</dt><dd className="font-serif text-3xl font-semibold">{formatGBP(fare)}</dd></div><div><dt className="text-xs uppercase tracking-wider text-black/50">Important notes</dt><dd className="text-sm">{journey.estimatedTime}. {journeyType==="return"?"The estimate shown covers the outward journey; return details will be reviewed separately.":"Journey details will be reviewed before confirmation."}</dd></div></dl><p className="mt-5 border-t border-black/10 pt-5 text-sm font-semibold">This quotation is an estimate based on the information supplied.</p><div className="mt-4 flex flex-col gap-3 sm:flex-row"><Link href="/contact" className="rounded-lg bg-ink px-5 py-3 text-center font-semibold text-white">Request Booking</Link><a href="tel:+441212222222" className="rounded-lg border border-ink px-5 py-3 text-center font-semibold text-ink">Call Now</a></div><p className="mt-5 text-sm text-black/65">The final quotation is confirmed after the complete pickup address, destination, vehicle requirements and journey details have been reviewed.</p></div>}
+  <button type="submit" disabled={isCalculating} className="mt-5 w-full rounded-lg bg-gold-500 px-6 py-4 font-semibold text-black hover:bg-gold-400 disabled:cursor-wait disabled:opacity-70">{isCalculating?"Calculating fare…":"Calculate estimated fare"}</button>
+  {show&&estimatedFare===null&&<div className="mt-6 rounded-xl border border-gold-500/30 bg-cream p-5"><h2 className="font-serif text-2xl font-semibold">Quotation review required</h2><p className="mt-3">We can provide a confirmed quotation for this journey once the pickup and destination details have been reviewed.</p><div className="mt-4 flex flex-col gap-3 sm:flex-row"><Link href="/contact" className="rounded-lg bg-ink px-5 py-3 text-center font-semibold text-white">Request Booking</Link><a href="tel:+441212222222" className="rounded-lg border border-ink px-5 py-3 text-center font-semibold text-ink">Call Now</a></div></div>}
+  {show&&estimatedFare!==null&&<div className="mt-6 rounded-xl border border-gold-500/30 bg-cream p-5"><h2 className="font-serif text-2xl font-semibold">Journey summary</h2><dl className="mt-4 grid gap-3 sm:grid-cols-2"><div><dt className="text-xs uppercase tracking-wider text-black/50">Pickup</dt><dd className="font-semibold">{pickupPlace?.displayAddress}</dd></div><div><dt className="text-xs uppercase tracking-wider text-black/50">Destination</dt><dd className="font-semibold">{destinationPlace?.displayAddress}</dd></div><div><dt className="text-xs uppercase tracking-wider text-black/50">Vehicle</dt><dd className="font-semibold">{capacity.label}</dd></div><div><dt className="text-xs uppercase tracking-wider text-black/50">Passenger count</dt><dd className="font-semibold">{passengers}</dd></div><div><dt className="text-xs uppercase tracking-wider text-black/50">Luggage</dt><dd className="font-semibold">{luggage} large suitcase{luggage===1?"":"s"}</dd></div><div><dt className="text-xs uppercase tracking-wider text-black/50">Journey type</dt><dd className="font-semibold">{journeyType==="return"?"Return":"One-way"}</dd></div><div><dt className="text-xs uppercase tracking-wider text-black/50">Estimated fare</dt><dd className="font-serif text-3xl font-semibold">{formatGBP(estimatedFare)}</dd></div><div><dt className="text-xs uppercase tracking-wider text-black/50">Important notes</dt><dd className="text-sm">{journey?.estimatedTime??(routeDurationSeconds!==null?"Journey duration has been calculated from the selected addresses":"Journey duration will be reviewed before confirmation")}. {journeyType==="return"?"The estimate shown covers the outward journey; return details will be reviewed separately.":"Journey details will be reviewed before confirmation."}</dd></div></dl><p className="mt-5 border-t border-black/10 pt-5 text-sm font-semibold">This quotation is an estimate based on the information supplied.</p><div className="mt-4 flex flex-col gap-3 sm:flex-row"><Link href="/contact" className="rounded-lg bg-ink px-5 py-3 text-center font-semibold text-white">Request Booking</Link><a href="tel:+441212222222" className="rounded-lg border border-ink px-5 py-3 text-center font-semibold text-ink">Call Now</a></div><p className="mt-5 text-sm text-black/65">The final quotation is confirmed after the complete pickup address, destination, vehicle requirements and journey details have been reviewed.</p></div>}
  </form>
 }
