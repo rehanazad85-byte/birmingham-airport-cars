@@ -21,7 +21,7 @@ export function QuoteForm({compact=false}:{compact?:boolean}){
  const updateDestination=useCallback((value:string,place:SelectedPlace|null)=>{setDestination(value);setDestinationPlace(place);setShow(false);setErrors(current=>({...current,destination:undefined,journey:undefined}))},[]);
  const submit=(event:FormEvent<HTMLFormElement>)=>{event.preventDefault();const nextErrors=validateAddressSelections({pickup:{inputValue:pickup,place:pickupPlace},destination:{inputValue:destination,place:destinationPlace},passengers,luggage});if(!capacityValidation.valid)nextErrors.luggage=capacityValidation.message;setErrors(nextErrors);setShow(Object.keys(nextErrors).length===0)};
  return <form onSubmit={submit} noValidate className="rounded-2xl bg-white p-5 text-ink shadow-premium sm:p-7">
-  <div className={`grid gap-4 ${compact?"lg:grid-cols-4":"md:grid-cols-2"}`}>
+  <div className={`grid gap-4 ${compact?"sm:grid-cols-2":"md:grid-cols-2"}`}>
    <PlacesAutocompleteInput label="Pickup address" value={pickup} selectedPlace={pickupPlace} onChange={updatePickup} error={errors.pickup} placeholder="Enter pickup address or postcode" fallbackOptions={pickups}/>
    <PlacesAutocompleteInput label="Drop-off airport or address" value={destination} selectedPlace={destinationPlace} onChange={updateDestination} error={errors.destination} placeholder="Enter airport, address or postcode" fallbackOptions={destinations}/>
    <label className="text-sm font-medium">Journey date<input type="date" className="mt-1 w-full rounded-lg border border-black/15 px-3 py-3"/></label>
