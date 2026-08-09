@@ -1,11 +1,11 @@
 "use client";
-import { useCallback, useState, type FormEvent } from "react";
+import { useCallback, useEffect, useState, type FormEvent } from "react";
 import Link from "next/link";
 import { formatGBP, getIllustrativeFare, type VehicleType } from "@/lib/pricing";
 import { testJourneys } from "@/lib/journeys";
 import { validateVehicleCapacity, vehicleCapacities } from "@/lib/vehicle-capacity";
 import { mapPlacesToJourney, type SelectedPlace } from "@/lib/places";
-import { validateAddressSelections, type JourneyType, type QuoteFieldErrors } from "@/lib/quote-calculator";
+import { formatLocalDate, validateAddressSelections, validateJourneyDateTime, type JourneyType, type QuoteFieldErrors } from "@/lib/quote-calculator";
 import { PlacesAutocompleteInput } from "@/components/PlacesAutocompleteInput";
 
 const vehicles: VehicleType[] = ["saloon", "estate", "mpv", "executive", "large-mpv"];
@@ -13,19 +13,21 @@ const pickups = ["Walsall", "Sutton Coldfield", "Wolverhampton"];
 const destinations = ["Birmingham Airport", "Heathrow Airport"];
 
 export function QuoteForm({compact=false}:{compact?:boolean}){
- const [pickup,setPickup]=useState(""); const [pickupPlace,setPickupPlace]=useState<SelectedPlace|null>(null); const [destination,setDestination]=useState(""); const [destinationPlace,setDestinationPlace]=useState<SelectedPlace|null>(null); const [vehicle,setVehicle]=useState<VehicleType>("saloon"); const [passengers,setPassengers]=useState(1); const [luggage,setLuggage]=useState(1); const [journeyType,setJourneyType]=useState<JourneyType>("one-way"); const [errors,setErrors]=useState<QuoteFieldErrors>({}); const [show,setShow]=useState(false);
+ const [pickup,setPickup]=useState(""); const [pickupPlace,setPickupPlace]=useState<SelectedPlace|null>(null); const [destination,setDestination]=useState(""); const [destinationPlace,setDestinationPlace]=useState<SelectedPlace|null>(null); const [journeyDate,setJourneyDate]=useState(""); const [journeyTime,setJourneyTime]=useState(""); const [vehicle,setVehicle]=useState<VehicleType>("saloon"); const [passengers,setPassengers]=useState(1); const [luggage,setLuggage]=useState(1); const [journeyType,setJourneyType]=useState<JourneyType>("one-way"); const [errors,setErrors]=useState<QuoteFieldErrors>({}); const [show,setShow]=useState(false);
+ const [minimumJourneyDate,setMinimumJourneyDate]=useState("");
+ useEffect(()=>setMinimumJourneyDate(formatLocalDate(new Date())),[]);
  const journey=pickupPlace&&destinationPlace?mapPlacesToJourney(testJourneys,pickupPlace,destinationPlace):undefined;
  const capacity=vehicleCapacities[vehicle]; const capacityValidation=validateVehicleCapacity(vehicle,passengers,luggage); const fare=journey&&capacityValidation.valid?getIllustrativeFare(journey.distanceMiles,vehicle):null;
  const resetResult=()=>setShow(false);
  const updatePickup=useCallback((value:string,place:SelectedPlace|null)=>{setPickup(value);setPickupPlace(place);setShow(false);setErrors(current=>({...current,pickup:undefined,journey:undefined}))},[]);
  const updateDestination=useCallback((value:string,place:SelectedPlace|null)=>{setDestination(value);setDestinationPlace(place);setShow(false);setErrors(current=>({...current,destination:undefined,journey:undefined}))},[]);
- const submit=(event:FormEvent<HTMLFormElement>)=>{event.preventDefault();const nextErrors=validateAddressSelections({pickup:{inputValue:pickup,place:pickupPlace},destination:{inputValue:destination,place:destinationPlace},passengers,luggage});if(!capacityValidation.valid)nextErrors.luggage=capacityValidation.message;setErrors(nextErrors);setShow(Object.keys(nextErrors).length===0)};
+ const submit=(event:FormEvent<HTMLFormElement>)=>{event.preventDefault();const nextErrors=validateAddressSelections({pickup:{inputValue:pickup,place:pickupPlace},destination:{inputValue:destination,place:destinationPlace},passengers,luggage});Object.assign(nextErrors,validateJourneyDateTime(journeyDate,journeyTime));if(!capacityValidation.valid)nextErrors.luggage=capacityValidation.message;setErrors(nextErrors);setShow(Object.keys(nextErrors).length===0)};
  return <form onSubmit={submit} noValidate className="rounded-2xl bg-white p-5 text-ink shadow-premium sm:p-7">
   <div className={`grid gap-4 ${compact?"sm:grid-cols-2":"md:grid-cols-2"}`}>
    <PlacesAutocompleteInput label="Pickup address" value={pickup} selectedPlace={pickupPlace} onChange={updatePickup} error={errors.pickup} placeholder="Enter pickup address or postcode" fallbackOptions={pickups}/>
    <PlacesAutocompleteInput label="Drop-off airport or address" value={destination} selectedPlace={destinationPlace} onChange={updateDestination} error={errors.destination} placeholder="Enter airport, address or postcode" fallbackOptions={destinations}/>
-   <label className="text-sm font-medium">Journey date<input type="date" className="mt-1 w-full rounded-lg border border-black/15 px-3 py-3"/></label>
-   <label className="text-sm font-medium">Journey time<input type="time" className="mt-1 w-full rounded-lg border border-black/15 px-3 py-3"/></label>
+   <label className="text-sm font-medium">Journey date<input type="date" min={minimumJourneyDate} value={journeyDate} onChange={e=>{setJourneyDate(e.currentTarget.value);resetResult();setErrors(current=>({...current,journeyDate:undefined,journeyTime:undefined}))}} aria-invalid={Boolean(errors.journeyDate)} className="mt-1 w-full rounded-lg border border-black/15 px-3 py-3"/>{errors.journeyDate&&<span className="mt-1 block text-xs text-red-700">{errors.journeyDate}</span>}</label>
+   <label className="text-sm font-medium">Journey time<input type="time" value={journeyTime} onChange={e=>{setJourneyTime(e.currentTarget.value);resetResult();setErrors(current=>({...current,journeyTime:undefined}))}} aria-invalid={Boolean(errors.journeyTime)} className="mt-1 w-full rounded-lg border border-black/15 px-3 py-3"/>{errors.journeyTime&&<span className="mt-1 block text-xs text-red-700">{errors.journeyTime}</span>}</label>
    <label className="text-sm font-medium">Vehicle type<select value={vehicle} onChange={e=>{setVehicle(e.target.value as VehicleType);resetResult()}} className="mt-1 w-full rounded-lg border border-black/15 px-3 py-3">{vehicles.map(v=><option key={v} value={v}>{vehicleCapacities[v].label}</option>)}</select></label>
    <label className="text-sm font-medium">Passengers<input type="number" min="1" max={capacity.maxPassengers} step="1" value={passengers} onChange={e=>{setPassengers(e.currentTarget.valueAsNumber);resetResult()}} aria-invalid={Boolean(errors.passengers)} className="mt-1 w-full rounded-lg border border-black/15 px-3 py-3"/>{errors.passengers&&<span className="mt-1 block text-xs text-red-700">{errors.passengers}</span>}</label>
    <label className="text-sm font-medium">Luggage<input type="number" min="0" max={capacity.maxLargeSuitcases} step="1" value={luggage} onChange={e=>{setLuggage(e.currentTarget.valueAsNumber);resetResult()}} aria-invalid={Boolean(errors.luggage)} aria-describedby="capacity-message" className="mt-1 w-full rounded-lg border border-black/15 px-3 py-3"/>{errors.luggage&&<span className="mt-1 block text-xs text-red-700">{errors.luggage}</span>}</label>

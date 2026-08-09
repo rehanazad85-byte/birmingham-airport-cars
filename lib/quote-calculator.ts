@@ -56,6 +56,44 @@ export interface QuoteFieldErrors {
   passengers?: string;
   luggage?: string;
   journey?: string;
+  journeyDate?: string;
+  journeyTime?: string;
+}
+
+export function formatLocalDate(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+export function validateJourneyDateTime(
+  journeyDate: string,
+  journeyTime: string,
+  now: Date = new Date(),
+): Pick<QuoteFieldErrors, "journeyDate" | "journeyTime"> {
+  const errors: Pick<QuoteFieldErrors, "journeyDate" | "journeyTime"> = {};
+
+  if (!journeyDate) errors.journeyDate = "Please select a journey date.";
+  if (!journeyTime) errors.journeyTime = "Please select a journey time.";
+  if (!journeyDate || !journeyTime) return errors;
+
+  const [year, month, day] = journeyDate.split("-").map(Number);
+  const [hours, minutes] = journeyTime.split(":").map(Number);
+  const selectedDateTime = new Date(year, month - 1, day, hours, minutes);
+
+  const isValidSelection =
+    selectedDateTime.getFullYear() === year &&
+    selectedDateTime.getMonth() === month - 1 &&
+    selectedDateTime.getDate() === day &&
+    selectedDateTime.getHours() === hours &&
+    selectedDateTime.getMinutes() === minutes;
+
+  if (!isValidSelection || selectedDateTime.getTime() < now.getTime()) {
+    errors.journeyTime = "Please select a journey date and time that has not passed.";
+  }
+
+  return errors;
 }
 
 export function uniqueJourneyValues(journeys: TestJourney[], field: "pickup" | "destination"): string[] {
