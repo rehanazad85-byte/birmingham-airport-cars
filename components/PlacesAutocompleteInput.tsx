@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useId, useRef } from "react";
 import { getSafeFallbackPlace, normaliseGooglePlaceNew, type GooglePlaceNewLike, type SelectedPlace } from "@/lib/places";
 
 interface PlaceNew extends GooglePlaceNewLike {
@@ -101,9 +101,13 @@ export function PlacesAutocompleteInput({ label, value, selectedPlace, onChange,
   const hostRef = useRef<HTMLDivElement>(null);
   const id = useId();
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
-  const [placesEnabled, setPlacesEnabled] = useState(false);
   const autocompleteRef = useRef<ReturnType<typeof mountPlaceAutocomplete> | null>(null);
   const initialValueRef = useRef(value);
+  const onChangeRef = useRef(onChange);
+
+  useEffect(() => {
+    onChangeRef.current = onChange;
+  }, [onChange]);
 
   useEffect(() => {
     if (!apiKey || !hostRef.current) return;
@@ -114,17 +118,16 @@ export function PlacesAutocompleteInput({ label, value, selectedPlace, onChange,
       if (cancelled || !hostRef.current || autocompleteRef.current) return;
       autocompleteRef.current = mountPlaceAutocomplete({
         host: hostRef.current, library, label, placeholder, value: initialValueRef.current,
-        onInput: (nextValue) => onChange(nextValue, null),
-        onPlace: (place) => onChange(place.displayAddress, place),
+        onInput: (nextValue) => onChangeRef.current(nextValue, null),
+        onPlace: (place) => onChangeRef.current(place.displayAddress, place),
       });
-      setPlacesEnabled(true);
-    }).catch(() => setPlacesEnabled(false));
+    }).catch(() => undefined);
     return () => {
       cancelled = true;
       autocompleteRef.current?.destroy();
       autocompleteRef.current = null;
     };
-  }, [apiKey, label, onChange, placeholder]);
+  }, [apiKey, label, placeholder]);
 
   useEffect(() => {
     if (autocompleteRef.current && autocompleteRef.current.element.value !== value) {
@@ -134,7 +137,7 @@ export function PlacesAutocompleteInput({ label, value, selectedPlace, onChange,
 
   const fallbackListId = `${id}-fallback`;
   return <label htmlFor={!apiKey ? id : undefined} className="text-sm font-medium">{label}
-    {apiKey ? <div ref={hostRef} className="mt-1 min-w-0" /> : <input
+    {apiKey ? <div ref={hostRef} className="bac-place-autocomplete-host mt-1 min-w-0" /> : <input
       id={id}
       type="text"
       value={value}
@@ -155,6 +158,6 @@ export function PlacesAutocompleteInput({ label, value, selectedPlace, onChange,
     {!apiKey && <datalist id={fallbackListId}>{fallbackOptions.map((option) => <option key={option} value={option}/>)}</datalist>}
     {error && <span id={`${id}-error`} className="mt-1 block text-xs text-red-700">{error}</span>}
     {process.env.NODE_ENV !== "production" && !apiKey && <span className="mt-1 block text-xs text-black/55">Google Places is not configured; supported locations remain available.</span>}
-    {apiKey && !placesEnabled && <span className="sr-only" aria-live="polite">Address suggestions are loading.</span>}
+    {apiKey && <span className="sr-only" aria-live="polite">Address suggestions load in the field above.</span>}
   </label>;
 }

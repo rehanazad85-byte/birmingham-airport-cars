@@ -9,20 +9,50 @@ class MockAutocompleteElement extends EventTarget {
   attributes = new Map<string, string>();
   removed = false;
   setAttribute(name: string, value: string) { this.attributes.set(name, value); }
-  remove() { this.removed = true; }
+  parent: MockHost | null = null;
+  remove() { this.removed = true; this.parent?.remove(this); }
+}
+
+class MockHost {
+  children: MockAutocompleteElement[] = [];
+  appendChild(element: MockAutocompleteElement) { this.children.push(element); element.parent = this; return element; }
+  remove(element: MockAutocompleteElement) { this.children = this.children.filter((child) => child !== element); }
 }
 
 describe("Places API (New) autocomplete initialisation", () => {
   it("mounts one GB-restricted widget and cleans it up", () => {
     const element = new MockAutocompleteElement();
-    const host = { appendChild: vi.fn() } as unknown as HTMLElement;
-    const mounted = mountPlaceAutocomplete({ host, library: { PlaceAutocompleteElement: class { constructor() { return element; } } as never }, label: "Pickup address", placeholder: "Enter pickup", value: "", onInput: vi.fn(), onPlace: vi.fn() });
+    const host = new MockHost();
+    const mounted = mountPlaceAutocomplete({ host: host as unknown as HTMLElement, library: { PlaceAutocompleteElement: class { constructor() { return element; } } as never }, label: "Pickup address", placeholder: "Enter pickup", value: "", onInput: vi.fn(), onPlace: vi.fn() });
 
-    expect(host.appendChild).toHaveBeenCalledOnce();
+    expect(host.children).toEqual([element]);
     expect(element.includedRegionCodes).toEqual(["gb"]);
     expect(element.attributes.get("aria-label")).toBe("Pickup address");
     mounted.destroy();
     expect(element.removed).toBe(true);
+    expect(host.children).toEqual([]);
+  });
+
+  it("retains each independently mounted widget until its own lifecycle cleanup", () => {
+    const pickupElement = new MockAutocompleteElement();
+    const destinationElement = new MockAutocompleteElement();
+    const pickupHost = new MockHost();
+    const destinationHost = new MockHost();
+    const library = { PlaceAutocompleteElement: class {
+      constructor() { return pickupHost.children.length === 0 ? pickupElement : destinationElement; }
+    } as never };
+
+    const pickup = mountPlaceAutocomplete({ host: pickupHost as unknown as HTMLElement, library, label: "Pickup address", placeholder: "Enter pickup", value: "", onInput: vi.fn(), onPlace: vi.fn() });
+    expect(pickupHost.children).toEqual([pickupElement]);
+
+    const destination = mountPlaceAutocomplete({ host: destinationHost as unknown as HTMLElement, library: { PlaceAutocompleteElement: class { constructor() { return destinationElement; } } as never }, label: "Destination", placeholder: "Enter destination", value: "", onInput: vi.fn(), onPlace: vi.fn() });
+    expect(pickupHost.children).toEqual([pickupElement]);
+    expect(destinationHost.children).toEqual([destinationElement]);
+
+    destination.destroy();
+    expect(pickupHost.children).toEqual([pickupElement]);
+    expect(destinationHost.children).toEqual([]);
+    pickup.destroy();
   });
 
   it("uses gmp-select, fetches fields and returns structured place data", async () => {
