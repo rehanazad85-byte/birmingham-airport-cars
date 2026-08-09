@@ -31,18 +31,27 @@ declare global {
       maps: { importLibrary(name: "places"): Promise<PlacesLibrary> };
     };
     __bacGooglePlacesPromise?: Promise<void>;
+    __bacGoogleMapsReady?: () => void;
   }
 }
 
-function loadGoogleMaps(apiKey: string): Promise<void> {
+export function loadGoogleMaps(apiKey: string): Promise<void> {
   if (window.google?.maps.importLibrary) return Promise.resolve();
   if (window.__bacGooglePlacesPromise) return window.__bacGooglePlacesPromise;
   window.__bacGooglePlacesPromise = new Promise((resolve, reject) => {
     const script = document.createElement("script");
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(apiKey)}&libraries=places&loading=async`;
+    const finish = () => {
+      delete window.__bacGoogleMapsReady;
+      if (window.google?.maps.importLibrary) resolve();
+      else reject(new Error("Google Maps could not be initialised"));
+    };
+    window.__bacGoogleMapsReady = finish;
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(apiKey)}&loading=async&callback=__bacGoogleMapsReady`;
     script.async = true;
-    script.onload = () => window.google?.maps.importLibrary ? resolve() : reject(new Error("Google Maps could not be initialised"));
-    script.onerror = () => reject(new Error("Places could not be loaded"));
+    script.onerror = () => {
+      delete window.__bacGoogleMapsReady;
+      reject(new Error("Places could not be loaded"));
+    };
     document.head.appendChild(script);
   });
   return window.__bacGooglePlacesPromise;

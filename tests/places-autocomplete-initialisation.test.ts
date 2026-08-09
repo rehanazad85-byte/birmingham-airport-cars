@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { mountPlaceAutocomplete } from "../components/PlacesAutocompleteInput";
+import { loadGoogleMaps, mountPlaceAutocomplete } from "../components/PlacesAutocompleteInput";
 
 class MockAutocompleteElement extends EventTarget {
   includedRegionCodes: string[] = [];
@@ -20,6 +20,38 @@ class MockHost {
 }
 
 describe("Places API (New) autocomplete initialisation", () => {
+  it("waits for Google's ready callback before importing and mounting Places", async () => {
+    const importLibrary = vi.fn().mockResolvedValue({ PlaceAutocompleteElement: MockAutocompleteElement });
+    const scripts: Array<{ src: string; async: boolean; onerror: null | (() => void) }> = [];
+    const testWindow = {
+      google: undefined,
+      __bacGooglePlacesPromise: undefined,
+      __bacGoogleMapsReady: undefined,
+    } as unknown as Window & typeof globalThis;
+    const testDocument = {
+      createElement: vi.fn(() => ({ src: "", async: false, onerror: null })),
+      head: { appendChild: vi.fn((script) => scripts.push(script)) },
+    } as unknown as Document;
+    vi.stubGlobal("window", testWindow);
+    vi.stubGlobal("document", testDocument);
+
+    const loading = loadGoogleMaps("public-browser-key");
+    expect(scripts).toHaveLength(1);
+    expect(scripts[0].src).toContain("callback=__bacGoogleMapsReady");
+    expect(scripts[0].src).not.toContain("libraries=places");
+    expect(testWindow.__bacGoogleMapsReady).toBeTypeOf("function");
+
+    const google = { maps: { importLibrary } };
+    testWindow.google = google as never;
+    testWindow.__bacGoogleMapsReady?.();
+    await loading;
+    const library = await google.maps.importLibrary("places");
+    expect(importLibrary).toHaveBeenCalledWith("places");
+    expect(library.PlaceAutocompleteElement).toBe(MockAutocompleteElement);
+
+    vi.unstubAllGlobals();
+  });
+
   it("mounts one GB-restricted widget and cleans it up", () => {
     const element = new MockAutocompleteElement();
     const host = new MockHost();
