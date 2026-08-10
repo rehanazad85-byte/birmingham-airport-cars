@@ -50,6 +50,32 @@ export function getRouteAwareIllustrativeFare(
   return distanceMiles === undefined ? null : getIllustrativeFare(distanceMiles, vehicle, config);
 }
 
+export interface AirportChargeLine {
+  airportCode: import("@/lib/airport-access").AirportCode;
+  direction: import("@/lib/airport-access").AirportDirection;
+  amount: number;
+}
+
+export interface FareCalculation {
+  journeyFare: number;
+  vehicleAdjustedFare: number;
+  airportAccessCharge: number;
+  airportCharges: AirportChargeLine[];
+  finalFare: number;
+}
+
+const roundMoney = (amount: number) => Math.round((amount + Number.EPSILON) * 100) / 100;
+
+export function calculateFinalFare(journeyFare: number | null, vehicleAdjustedFare: number | null, airportCharges: AirportChargeLine[]): FareCalculation | null {
+  if (journeyFare === null || vehicleAdjustedFare === null) return null;
+  const airportAccessCharge = roundMoney(airportCharges.reduce((total, charge) => total + charge.amount, 0));
+  return { journeyFare, vehicleAdjustedFare, airportAccessCharge, airportCharges, finalFare: roundMoney(vehicleAdjustedFare + airportAccessCharge) };
+}
+
+export function getVehicleAdjustedFixedFare(fixedSaloonFare: number | undefined, vehicle: VehicleType, config = pricingConfig): number | null {
+  return fixedSaloonFare === undefined ? null : roundFareToNearestPound(fixedSaloonFare * config.vehicleMultipliers[vehicle]);
+}
+
 export function formatGBP(amount: number): string {
-  return new Intl.NumberFormat("en-GB", { style: "currency", currency: "GBP", maximumFractionDigits: 0 }).format(amount);
+  return new Intl.NumberFormat("en-GB", { style: "currency", currency: "GBP", minimumFractionDigits: Number.isInteger(amount) ? 0 : 2, maximumFractionDigits: 2 }).format(amount);
 }

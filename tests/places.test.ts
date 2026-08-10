@@ -23,6 +23,6 @@ describe("Google Places foundation", () => {
   it("preserves supported pricing", () => {
     const journey = mapPlacesToJourney(testJourneys, place({ locality: "Walsall" }), place({ name: "Birmingham Airport", displayAddress: "Birmingham Airport, UK", types: ["airport"] }));
     expect(journey?.id).toBe("walsall-bhx");
-    expect(getIllustrativeFare(journey!.distanceMiles, "saloon")).toBe(47);
+    expect(getIllustrativeFare(journey!.distanceMiles!, "saloon")).toBe(47);
   });
 });

@@ -1,4 +1,5 @@
 import type { TestJourney } from "@/lib/journeys";
+import { airportAccessConfig, recogniseSupportedAirport, type AirportCode } from "@/lib/airport-access";
 
 export interface AddressComponent {
   longName: string;
@@ -94,20 +95,23 @@ export function recognisePickupArea(place: SelectedPlace): "Walsall" | "Sutton C
   return null;
 }
 
-export function recogniseAirport(place: SelectedPlace): "Birmingham Airport" | "Heathrow Airport" | null {
-  const identity = `${normalise(place.name)} ${normalise(place.displayAddress)}`;
-  const looksLikeAirport = place.types.includes("airport") || /\bairport\b/.test(identity);
-  if (!looksLikeAirport) return null;
-  if (/\bbirmingham airport\b/.test(identity)) return "Birmingham Airport";
-  if (/\b(london )?heathrow airport\b/.test(identity)) return "Heathrow Airport";
-  return null;
+export function recogniseAirport(place: SelectedPlace): string | null {
+  const code = recogniseSupportedAirport(place);
+  return code ? airportAccessConfig[code].name : null;
 }
 
 export function mapPlacesToJourney(journeys: TestJourney[], pickup: SelectedPlace, destination: SelectedPlace) {
   const pickupArea = recognisePickupArea(pickup);
-  const airport = recogniseAirport(destination);
-  if (!pickupArea || !airport) return undefined;
-  return journeys.find((journey) => journey.pickup === pickupArea && journey.destination === airport);
+  const destinationArea = recognisePickupArea(destination);
+  const pickupAirport = recogniseSupportedAirport(pickup);
+  const destinationAirport = recogniseSupportedAirport(destination);
+  if (pickupArea && destinationAirport) return journeys.find((journey) => journey.pickup === pickupArea && journey.airportCode === destinationAirport);
+  if (pickupAirport && destinationArea) return journeys.find((journey) => journey.pickup === destinationArea && journey.airportCode === pickupAirport);
+  return undefined;
+}
+
+export function getJourneyAirports(pickup: SelectedPlace, destination: SelectedPlace): { pickupAirport: AirportCode | null; destinationAirport: AirportCode | null } {
+  return { pickupAirport: recogniseSupportedAirport(pickup), destinationAirport: recogniseSupportedAirport(destination) };
 }
 
 const fallbackPlaces: Record<string, SelectedPlace> = {

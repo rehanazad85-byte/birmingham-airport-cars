@@ -43,6 +43,6 @@ describe("journey date and time validation", () => {
 
   it("preserves the existing supported journey fare", () => {
     const journey = findJourney(testJourneys, "Walsall", "Birmingham Airport");
-    expect(journey && getIllustrativeFare(journey.distanceMiles, "saloon")).toBe(47);
+    expect(journey && getIllustrativeFare(journey.distanceMiles!, "saloon")).toBe(47);
   });
 });
