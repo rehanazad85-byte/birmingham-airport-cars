@@ -58,6 +58,33 @@ export interface QuoteFieldErrors {
   journey?: string;
   journeyDate?: string;
   journeyTime?: string;
+  returnDate?: string;
+  returnTime?: string;
+}
+
+export function validateReturnDateTime(
+  journeyDate: string,
+  journeyTime: string,
+  returnDate: string,
+  returnTime: string,
+): Pick<QuoteFieldErrors, "returnDate" | "returnTime"> {
+  const errors: Pick<QuoteFieldErrors, "returnDate" | "returnTime"> = {};
+  if (!returnDate) errors.returnDate = "Please select a return date.";
+  if (!returnTime) errors.returnTime = "Please select a return time.";
+  if (!journeyDate || !journeyTime || !returnDate || !returnTime) return errors;
+
+  const parseLocalDateTime = (date: string, time: string) => {
+    const [year, month, day] = date.split("-").map(Number);
+    const [hours, minutes] = time.split(":").map(Number);
+    const value = new Date(year, month - 1, day, hours, minutes);
+    return value.getFullYear() === year && value.getMonth() === month - 1 && value.getDate() === day && value.getHours() === hours && value.getMinutes() === minutes ? value : null;
+  };
+  const outbound = parseLocalDateTime(journeyDate, journeyTime);
+  const returning = parseLocalDateTime(returnDate, returnTime);
+  if (!outbound || !returning || returning.getTime() <= outbound.getTime()) {
+    errors.returnTime = "Please select a return date and time after the outbound journey.";
+  }
+  return errors;
 }
 
 export function formatLocalDate(date: Date): string {

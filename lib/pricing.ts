@@ -64,12 +64,40 @@ export interface FareCalculation {
   finalFare: number;
 }
 
+export interface ReturnFareCalculation {
+  outbound: FareCalculation;
+  returnLeg: FareCalculation;
+  returnDiscount: number;
+  discountedReturnJourneyFare: number;
+  finalFare: number;
+}
+
 const roundMoney = (amount: number) => Math.round((amount + Number.EPSILON) * 100) / 100;
 
 export function calculateFinalFare(journeyFare: number | null, vehicleAdjustedFare: number | null, airportCharges: AirportChargeLine[]): FareCalculation | null {
   if (journeyFare === null || vehicleAdjustedFare === null) return null;
   const airportAccessCharge = roundMoney(airportCharges.reduce((total, charge) => total + charge.amount, 0));
   return { journeyFare, vehicleAdjustedFare, airportAccessCharge, airportCharges, finalFare: roundMoney(vehicleAdjustedFare + airportAccessCharge) };
+}
+
+export function calculateReturnFare(
+  outbound: FareCalculation | null,
+  returnJourneyFare: number | null,
+  returnVehicleAdjustedFare: number | null,
+  returnAirportCharges: AirportChargeLine[],
+): ReturnFareCalculation | null {
+  if (outbound === null || returnJourneyFare === null || returnVehicleAdjustedFare === null) return null;
+  const returnDiscount = roundMoney(returnVehicleAdjustedFare * 0.1);
+  const discountedReturnJourneyFare = roundMoney(returnVehicleAdjustedFare - returnDiscount);
+  const returnLeg = calculateFinalFare(returnJourneyFare, discountedReturnJourneyFare, returnAirportCharges);
+  if (returnLeg === null) return null;
+  return {
+    outbound,
+    returnLeg,
+    returnDiscount,
+    discountedReturnJourneyFare,
+    finalFare: roundMoney(outbound.finalFare + returnLeg.finalFare),
+  };
 }
 
 export function getVehicleAdjustedFixedFare(fixedSaloonFare: number | undefined, vehicle: VehicleType, config = pricingConfig): number | null {

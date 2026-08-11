@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { testJourneys } from "../lib/journeys";
-import { findJourney, uniqueJourneyValues, validateJourneyDateTime, validateJourneySelection } from "../lib/quote-calculator";
+import { findJourney, uniqueJourneyValues, validateJourneyDateTime, validateJourneySelection, validateReturnDateTime } from "../lib/quote-calculator";
 import { getIllustrativeFare } from "../lib/pricing";
 
 describe("quote calculator journey selection", () => {
@@ -44,5 +44,32 @@ describe("journey date and time validation", () => {
   it("preserves the existing supported journey fare", () => {
     const journey = findJourney(testJourneys, "Walsall", "Birmingham Airport");
     expect(journey && getIllustrativeFare(journey.distanceMiles!, "saloon")).toBe(47);
+  });
+});
+
+describe("return date and time validation", () => {
+  it("requires complete return details", () => {
+    expect(validateReturnDateTime("2026-08-10", "10:00", "", "")).toEqual({
+      returnDate: "Please select a return date.",
+      returnTime: "Please select a return time.",
+    });
+  });
+
+  it("rejects a return date before the outbound date", () => {
+    expect(validateReturnDateTime("2026-08-10", "10:00", "2026-08-09", "12:00").returnTime).toBeTruthy();
+  });
+
+  it("rejects a same-day return time that is not later", () => {
+    expect(validateReturnDateTime("2026-08-10", "10:00", "2026-08-10", "10:00").returnTime).toBeTruthy();
+    expect(validateReturnDateTime("2026-08-10", "10:00", "2026-08-10", "09:59").returnTime).toBeTruthy();
+  });
+
+  it("accepts a later same-day return and a later-date return", () => {
+    expect(validateReturnDateTime("2026-08-10", "10:00", "2026-08-10", "10:01")).toEqual({});
+    expect(validateReturnDateTime("2026-08-10", "23:00", "2026-08-11", "01:00")).toEqual({});
+  });
+
+  it("rejects impossible calendar values", () => {
+    expect(validateReturnDateTime("2026-08-10", "10:00", "2026-02-30", "12:00").returnTime).toBeTruthy();
   });
 });
