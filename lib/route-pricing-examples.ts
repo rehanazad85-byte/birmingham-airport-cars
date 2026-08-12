@@ -49,8 +49,24 @@ const draft = (
   lastReviewedDate: "2026-08-04",
 });
 
+const approvedFixed = (
+  routeSlug: AirportRouteSlug,
+  originTown: string,
+  pickup: string,
+  postcode: string,
+  destinationAirport: string,
+  destinationTerminal: string,
+  fare: number,
+): RoutePricingExample => ({
+  ...draft(routeSlug, originTown, pickup, postcode, destinationAirport, destinationTerminal),
+  approvedExampleFare: fare,
+  conditions: "Approved underlying Saloon journey fare. Applicable airport access charges are calculated separately.",
+  approvalStatus: "approved",
+  lastReviewedDate: "2026-08-11",
+});
+
 export const routePricingExamples: Record<AirportRouteSlug, RoutePricingExample> = {
-  "walsall-to-birmingham-airport": draft("walsall-to-birmingham-airport", "Walsall", "Walsall town centre", "WS1 1TP", "Birmingham Airport", "Birmingham Airport"),
+  "walsall-to-birmingham-airport": approvedFixed("walsall-to-birmingham-airport", "Walsall", "Walsall town centre", "WS1 1TP", "Birmingham Airport", "Birmingham Airport", 47),
   "sutton-coldfield-to-birmingham-airport": draft("sutton-coldfield-to-birmingham-airport", "Sutton Coldfield", "Sutton Coldfield town centre", "B72 1PA", "Birmingham Airport", "Birmingham Airport"),
   "wolverhampton-to-birmingham-airport": draft("wolverhampton-to-birmingham-airport", "Wolverhampton", "Wolverhampton city centre", "WV1 1SH", "Birmingham Airport", "Birmingham Airport"),
   "west-bromwich-to-birmingham-airport": draft("west-bromwich-to-birmingham-airport", "West Bromwich", "West Bromwich town centre", "B70 8DJ", "Birmingham Airport", "Birmingham Airport"),
@@ -58,7 +74,7 @@ export const routePricingExamples: Record<AirportRouteSlug, RoutePricingExample>
   "birmingham-to-birmingham-airport": draft("birmingham-to-birmingham-airport", "Birmingham", "Birmingham city centre", "B1 1BB", "Birmingham Airport", "Birmingham Airport"),
   "solihull-to-birmingham-airport": draft("solihull-to-birmingham-airport", "Solihull", "Solihull town centre", "B91 3RG", "Birmingham Airport", "Birmingham Airport"),
   "cannock-to-birmingham-airport": draft("cannock-to-birmingham-airport", "Cannock", "Cannock town centre", "WS11 1WS", "Birmingham Airport", "Birmingham Airport"),
-  "walsall-to-heathrow-airport": draft("walsall-to-heathrow-airport", "Walsall", "Walsall town centre", "WS1 1TP", "Heathrow Airport", "Heathrow terminal confirmed with booking"),
+  "walsall-to-heathrow-airport": approvedFixed("walsall-to-heathrow-airport", "Walsall", "Walsall town centre", "WS1 1TP", "Heathrow Airport", "Heathrow terminal confirmed with booking", 185),
   "sutton-coldfield-to-heathrow-airport": draft("sutton-coldfield-to-heathrow-airport", "Sutton Coldfield", "Sutton Coldfield town centre", "B72 1PA", "Heathrow Airport", "Heathrow terminal confirmed with booking"),
   "wolverhampton-to-heathrow-airport": draft("wolverhampton-to-heathrow-airport", "Wolverhampton", "Wolverhampton city centre", "WV1 1SH", "Heathrow Airport", "Heathrow terminal confirmed with booking"),
   "west-bromwich-to-heathrow-airport": draft("west-bromwich-to-heathrow-airport", "West Bromwich", "West Bromwich town centre", "B70 8DJ", "Heathrow Airport", "Heathrow terminal confirmed with booking"),

@@ -1,12 +1,15 @@
 import type { MetadataRoute } from "next";
 import { locationSlugs } from "@/lib/locations";
 import { airportRouteSlugs } from "@/lib/airport-routes";
+import { airportHubSlugs } from "@/lib/seo-airports";
+import { expandedRouteSlugs } from "@/lib/seo-routes";
 
 const baseUrl = "https://birminghamairportcars.co.uk";
 
 const publicRoutes = [
   "",
   "/airport-taxi-faqs",
+  "/airport-transfers",
   "/areas-we-cover",
   "/book-now",
   "/business-accounts",
@@ -28,5 +31,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
     url: `${baseUrl}/airport-transfers/${slug}`,
   }));
 
-  return [...existingPages, ...townPages, ...airportRoutePages];
+  const expandedRoutePages = expandedRouteSlugs.map((slug) => ({
+    url: `${baseUrl}/airport-transfers/${slug}`,
+  }));
+
+  const airportHubPages = airportHubSlugs.map((slug) => ({
+    url: `${baseUrl}/airport-transfers/${slug}`,
+  }));
+
+  return [...existingPages, ...townPages, ...airportHubPages, ...airportRoutePages, ...expandedRoutePages];
 }

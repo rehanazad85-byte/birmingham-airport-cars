@@ -14,6 +14,11 @@ export interface SelectedPlace {
   longitude: number;
   postcode?: string;
   locality?: string;
+  street?: string;
+  streetNumber?: string;
+  premises?: string;
+  administrativeArea?: string;
+  county?: string;
   country?: string;
   name?: string;
   types: string[];
@@ -55,6 +60,11 @@ export function normaliseGooglePlace(place: GooglePlaceLike): SelectedPlace | nu
     longitude: longitude as number,
     postcode: component(place, "postal_code")?.long_name,
     locality: locality?.long_name,
+    street: component(place, "route")?.long_name,
+    streetNumber: component(place, "street_number")?.long_name,
+    premises: component(place, "premise")?.long_name ?? component(place, "subpremise")?.long_name,
+    administrativeArea: component(place, "administrative_area_level_1")?.long_name,
+    county: component(place, "administrative_area_level_2")?.long_name,
     country: component(place, "country")?.short_name,
     name: place.name,
     types: place.types ?? [],
@@ -79,6 +89,11 @@ export function normaliseGooglePlaceNew(place: GooglePlaceNewLike): SelectedPlac
     longitude: longitude as number,
     postcode: newComponent(place, "postal_code")?.longText,
     locality: locality?.longText,
+    street: newComponent(place, "route")?.longText,
+    streetNumber: newComponent(place, "street_number")?.longText,
+    premises: newComponent(place, "premise")?.longText ?? newComponent(place, "subpremise")?.longText,
+    administrativeArea: newComponent(place, "administrative_area_level_1")?.longText,
+    county: newComponent(place, "administrative_area_level_2")?.longText,
     country: newComponent(place, "country")?.shortText,
     name: place.displayName ?? undefined,
     types: place.types ?? [],

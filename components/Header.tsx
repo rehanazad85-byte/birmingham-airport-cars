@@ -4,7 +4,7 @@ import { Menu, Phone, X } from "lucide-react";
 import { useState } from "react";
 
 const links = [
-  ["Home", "/"], ["Areas We Cover", "/areas-we-cover"], ["Airport Taxi FAQs", "/airport-taxi-faqs"],
+  ["Home", "/"], ["Airport Transfers", "/airport-transfers"], ["Areas We Cover", "/areas-we-cover"], ["Airport Taxi FAQs", "/airport-taxi-faqs"],
   ["Business Accounts", "/business-accounts"], ["Contact", "/contact"]
 ] as const;
 
@@ -18,7 +18,7 @@ export function Header() {
       </Link>
       <nav className="hidden items-center gap-6 lg:flex">{links.map(([label, href]) => <Link className="text-sm text-white/80 hover:text-gold-400" href={href} key={href}>{label}</Link>)}</nav>
       <div className="hidden items-center gap-3 md:flex">
-        <a href="tel:07474234244" className="flex items-center gap-2 rounded-full border border-white/20 px-4 py-2 text-sm"><Phone size={15}/> 07474 234244</a>
+        <a href="tel:+441212222222" className="flex items-center gap-2 rounded-full border border-white/20 px-4 py-2 text-sm"><Phone size={15}/> 0121 222 2222</a>
         <Link href="/book-now" className="rounded-full bg-gold-500 px-5 py-2.5 text-sm font-semibold text-black hover:bg-gold-400">Get an Instant Fare</Link>
       </div>
       <button className="lg:hidden" onClick={() => setOpen(!open)} aria-label="Toggle menu">{open ? <X/> : <Menu/>}</button>

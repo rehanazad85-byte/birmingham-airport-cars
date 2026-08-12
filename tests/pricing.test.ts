@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { calculateFinalFare, calculateReturnFare, calculateSaloonFare, formatGBP, getIllustrativeFare, getRouteAwareIllustrativeFare, getVehicleAdjustedFixedFare } from "../lib/pricing";
+import { calculateFinalFare, calculatePricePerPerson, calculateReturnFare, calculateSaloonFare, formatGBP, getIllustrativeFare, getRouteAwareIllustrativeFare, getVehicleAdjustedFixedFare } from "../lib/pricing";
 import { getJourneyAirportCharges } from "../lib/airport-access";
 
 describe("pricing engine", () => {
@@ -11,6 +11,9 @@ describe("pricing engine", () => {
   it("preserves an existing illustrative journey fare over live distance", () => expect(getRouteAwareIllustrativeFare(22, 25, "saloon")).toBe(47));
   it("uses live distance when no illustrative journey exists", () => expect(getRouteAwareIllustrativeFare(undefined, 22, "saloon")).toBe(47));
   it("does not fabricate a fare when routing fails", () => expect(getRouteAwareIllustrativeFare(undefined, undefined, "saloon")).toBeNull());
+  it("calculates one-way per-person information from the complete final fare", () => expect(calculatePricePerPerson(110, 2)).toBe(55));
+  it("calculates return per-person information after discount and charges", () => expect(calculatePricePerPerson(314.2, 2)).toBe(157.1));
+  it("does not show redundant single-passenger information", () => expect(calculatePricePerPerson(47, 1)).toBeNull());
 });
 
 describe("Phase 3E return pricing", () => {

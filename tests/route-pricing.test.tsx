@@ -44,7 +44,7 @@ describe("route pricing approval and rendering", () => {
 
   it("renders an approved representative fare", () => {
     const html = renderPricing({ ...baseExample, approvalStatus: "approved", approvedExampleFare: 120 });
-    expect(html).toContain("from £120");
+    expect(html).toContain("£120 before applicable airport access charges");
     expect(html).toContain("Walsall town centre");
   });
 

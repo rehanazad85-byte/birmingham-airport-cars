@@ -37,7 +37,7 @@ export function RouteDirectAnswer({
         </p>
         {hasExample ? (
           <p className="mt-3 max-w-5xl leading-7 text-black/65">
-            An approved example {vehicleCapacities[pricing.vehicleType].label.toLowerCase()} fare from {pricing.representativePickupName}, {pricing.representativePickupPostcode} to {pricing.destinationTerminal} is from £{formatApprovedMoney(pricing.approvedExampleFare!)}. The confirmed fare depends on the exact pickup address, vehicle and booking requirements.
+            The approved underlying {vehicleCapacities[pricing.vehicleType].label.toLowerCase()} journey fare from {pricing.representativePickupName}, {pricing.representativePickupPostcode} to {pricing.destinationTerminal} is £{formatApprovedMoney(pricing.approvedExampleFare!)}. Applicable airport access charges are calculated separately.
           </p>
         ) : null}
         {hasRange ? (

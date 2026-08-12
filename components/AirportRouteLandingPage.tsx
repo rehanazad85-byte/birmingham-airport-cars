@@ -4,6 +4,7 @@ import { RoutePricingGuidance } from "@/components/RoutePricingGuidance";
 import { RouteDirectAnswer } from "@/components/RouteDirectAnswer";
 import { RouteAuthorityAnswers } from "@/components/RouteAuthorityAnswers";
 import { AirportKnowledge } from "@/components/AirportKnowledge";
+import { AirportAccessInfo } from "@/components/AirportAccessInfo";
 import { airportKnowledge } from "@/lib/airport-knowledge";
 import { airports } from "@/lib/airports";
 import type { AirportRoute } from "@/lib/airport-routes";
@@ -25,6 +26,7 @@ export function AirportRouteLandingPage({ route }: { route: AirportRoute }) {
   const airport = airports[route.destinationAirport];
   const knowledge = airportKnowledge[route.destinationAirport];
   const isHeathrowRoute = route.destinationAirport === "heathrow";
+  const airportHubSlug = route.destinationAirport === "birmingham" ? "birmingham-airport" : "heathrow-airport";
   const canonical = `https://birminghamairportcars.co.uk/airport-transfers/${route.slug}`;
   const approvedPricing = getPublicRoutePricing(route.slug);
   const authorityContent = routeAuthorityContent[route.slug];
@@ -33,8 +35,9 @@ export function AirportRouteLandingPage({ route }: { route: AirportRoute }) {
     "@type": "BreadcrumbList",
     itemListElement: [
       { "@type": "ListItem", position: 1, name: "Home", item: "https://birminghamairportcars.co.uk/" },
-      { "@type": "ListItem", position: 2, name: "Areas We Cover", item: "https://birminghamairportcars.co.uk/areas-we-cover" },
-      { "@type": "ListItem", position: 3, name: `${location.name} to ${airport.name}`, item: canonical },
+      { "@type": "ListItem", position: 2, name: "Airport Transfers", item: "https://birminghamairportcars.co.uk/airport-transfers" },
+      { "@type": "ListItem", position: 3, name: airport.name, item: `https://birminghamairportcars.co.uk/airport-transfers/${airportHubSlug}` },
+      { "@type": "ListItem", position: 4, name: `${location.name} to ${airport.name}`, item: canonical },
     ],
   };
 
@@ -43,7 +46,8 @@ export function AirportRouteLandingPage({ route }: { route: AirportRoute }) {
     <nav aria-label="Breadcrumb" className="border-b bg-cream">
       <ol className="mx-auto flex max-w-7xl flex-wrap gap-2 px-4 py-4 text-sm text-black/60 lg:px-8">
         <li><Link className="hover:text-gold-600" href="/">Home</Link></li><li aria-hidden="true">/</li>
-        <li><Link className="hover:text-gold-600" href="/areas-we-cover">Areas We Cover</Link></li><li aria-hidden="true">/</li>
+        <li><Link className="hover:text-gold-600" href="/airport-transfers">Airport Transfers</Link></li><li aria-hidden="true">/</li>
+        <li><Link className="hover:text-gold-600" href={`/airport-transfers/${airportHubSlug}`}>{airport.name}</Link></li><li aria-hidden="true">/</li>
         <li aria-current="page" className="text-black">{location.name} to {airport.name}</li>
       </ol>
     </nav>
@@ -91,6 +95,10 @@ export function AirportRouteLandingPage({ route }: { route: AirportRoute }) {
 
     <AirportKnowledge airport={airport} knowledge={knowledge} />
 
+    <AirportAccessInfo airportSlug={airportHubSlug} />
+
+    <section className="mx-auto max-w-7xl px-4 py-16 lg:px-8"><div className="rounded-2xl border border-gold-500/30 p-7"><p className="text-sm font-semibold uppercase tracking-widest text-gold-600">Return journey saving</p><h2 className="mt-2 font-serif text-3xl">Save 10% on the return journey fare</h2><p className="mt-4 max-w-4xl leading-7 text-black/65">Book your return journey together and save 10% on the return journey fare. The saving applies only to the second leg’s underlying journey fare after vehicle pricing; airport access charges remain payable in full.</p><Link href="/book-now" className="mt-5 inline-block font-semibold underline">Calculate an outbound and return quote</Link></div></section>
+
     <section className="bg-ink text-white"><div className="mx-auto max-w-4xl px-4 py-16 lg:px-8">
       <p className="text-sm font-semibold uppercase tracking-widest text-gold-400">Useful answers</p><h2 className="mt-2 font-serif text-3xl">{location.name} to {airport.name} FAQs</h2>
       <div className="mt-8 space-y-4">{route.faqs.map(({ question, answer }) => <article className="rounded-xl border border-white/10 bg-white/5 p-6" key={question}><h3 className="font-semibold">{question}</h3><p className="mt-3 leading-7 text-white/65">{answer}</p></article>)}</div>
@@ -99,7 +107,7 @@ export function AirportRouteLandingPage({ route }: { route: AirportRoute }) {
 
     <section className="mx-auto grid max-w-7xl gap-10 px-4 py-16 lg:grid-cols-2 lg:px-8">
       <div><h2 className="font-serif text-3xl">Nearby {airport.name} routes</h2><div className="mt-5 flex flex-wrap gap-3">{route.nearbyRouteSlugs.map((slug) => { const nearbyRoute = airportRoutes[slug]; const nearby = locations[nearbyRoute.locationSlug]; return <Link className="rounded-full border px-5 py-2.5 text-sm font-semibold hover:border-gold-500" href={`/airport-transfers/${slug}`} key={slug}>{nearby.name} to {airports[nearbyRoute.destinationAirport].name}</Link>; })}</div>
-        <p className="mt-6 text-sm text-black/60">Read the full <Link className="font-semibold text-black underline" href={`/areas-we-cover/${location.slug}`}>{location.name} airport transfer area guide</Link> or view <Link className="font-semibold text-black underline" href="/areas-we-cover">all areas</Link>.</p>
+        <p className="mt-6 text-sm text-black/60">Explore the <Link className="font-semibold text-black underline" href={`/airport-transfers/${airportHubSlug}`}>{airport.name} hub</Link>, read the <Link className="font-semibold text-black underline" href={`/areas-we-cover/${location.slug}`}>{location.name} airport transfer area guide</Link>, or view <Link className="font-semibold text-black underline" href="/areas-we-cover">all areas</Link>.</p>
         {isHeathrowRoute ? <p className="mt-4 text-sm text-black/60">For regional departures, see the <Link className="font-semibold text-black underline" href={`/airport-transfers/${location.slug}-to-birmingham-airport`}>{location.name} to Birmingham Airport route</Link>.</p> : null}
       </div>
       <aside className="rounded-2xl bg-cream p-7"><BriefcaseBusiness className="text-gold-500"/><h2 className="mt-4 font-serif text-3xl">Business airport travel</h2><p className="mt-3 leading-7 text-black/65">Companies arranging regular travel for staff or guests can discuss planned account requirements.</p><Link className="mt-5 inline-block font-semibold underline" href="/business-accounts">Explore business accounts</Link></aside>

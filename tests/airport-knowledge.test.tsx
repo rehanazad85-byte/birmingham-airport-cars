@@ -58,7 +58,11 @@ describe("Phase 2F airport knowledge and live-site cleanup", () => {
     for (const slug of airportRouteSlugs) {
       expect(airportRoutes[slug].slug).toBe(slug);
       expect(`/airport-transfers/${airportRoutes[slug].slug}`).toBe(`/airport-transfers/${slug}`);
-      expect(getPublicRoutePricing(slug)).toBeNull();
+      if (slug === "walsall-to-birmingham-airport" || slug === "walsall-to-heathrow-airport") {
+        expect(getPublicRoutePricing(slug)?.approvedExampleFare).toBe(slug.includes("birmingham") ? 47 : 185);
+      } else {
+        expect(getPublicRoutePricing(slug)).toBeNull();
+      }
       const html = renderToStaticMarkup(<AirportRouteLandingPage route={airportRoutes[slug]} />);
       expect(html).toContain("Get an exact quote");
       expect(html).not.toContain("£0");

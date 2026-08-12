@@ -9,6 +9,8 @@ import {
 import Link from "next/link";
 import type { Location } from "@/lib/locations";
 import { locations } from "@/lib/locations";
+import { getPublishedRoutesForArea } from "@/lib/seo-routes";
+import { seoAirports } from "@/lib/seo-airports";
 
 const benefits = [
   {
@@ -34,6 +36,7 @@ const benefits = [
 ] as const;
 
 export function LocationLandingPage({ location }: { location: Location }) {
+  const publishedRoutes = getPublishedRoutesForArea(location.slug);
   const breadcrumbJsonLd = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
@@ -90,6 +93,15 @@ export function LocationLandingPage({ location }: { location: Location }) {
           >
             Request an airport transfer quote
           </Link>
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-7xl px-4 py-16 lg:px-8">
+        <p className="text-sm font-semibold uppercase tracking-widest text-gold-600">Route guides</p>
+        <h2 className="mt-2 font-serif text-3xl">Published airport routes from {location.name}</h2>
+        <p className="mt-4 max-w-3xl leading-7 text-black/65">Use a commercial route guide for airport access information, route-specific planning and a direct link to the exact-address calculator.</p>
+        <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {publishedRoutes.map((route) => <article className="rounded-2xl border p-6" key={route.slug}><h3 className="font-serif text-2xl">{location.name} to {seoAirports[route.airportSlug].name}</h3>{route.fixedSaloonFare ? <p className="mt-3 font-semibold">Approved Saloon journey fare: £{route.fixedSaloonFare}</p> : <p className="mt-3 text-sm text-black/60">Enter the exact address for a live estimated fare.</p>}<Link className="mt-4 inline-block font-semibold underline" href={`/airport-transfers/${route.slug}`}>View route guide</Link></article>)}
         </div>
       </section>
 

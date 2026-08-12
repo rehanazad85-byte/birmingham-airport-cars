@@ -25,7 +25,7 @@ export function RoutePricingGuidance({ pricing }: { pricing: ApprovedRoutePricin
 
       {hasExample ? (
         <p className="mt-3 leading-7 text-black/65">
-          Approved representative journey: {pricing.representativePickupName}, {pricing.representativePickupPostcode} to {pricing.destinationTerminal} by {vehicleCapacities[pricing.vehicleType].label.toLowerCase()}, from £{formatApprovedMoney(pricing.approvedExampleFare!)}.
+          Approved underlying journey: {pricing.representativePickupName}, {pricing.representativePickupPostcode} to {pricing.destinationTerminal} by {vehicleCapacities[pricing.vehicleType].label.toLowerCase()}, £{formatApprovedMoney(pricing.approvedExampleFare!)} before applicable airport access charges.
         </p>
       ) : null}
 

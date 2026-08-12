@@ -107,3 +107,8 @@ export function getVehicleAdjustedFixedFare(fixedSaloonFare: number | undefined,
 export function formatGBP(amount: number): string {
   return new Intl.NumberFormat("en-GB", { style: "currency", currency: "GBP", minimumFractionDigits: Number.isInteger(amount) ? 0 : 2, maximumFractionDigits: 2 }).format(amount);
 }
+
+export function calculatePricePerPerson(finalFare: number, passengers: number): number | null {
+  if (!Number.isFinite(finalFare) || finalFare < 0 || !Number.isInteger(passengers) || passengers <= 1) return null;
+  return roundMoney(finalFare / passengers);
+}
