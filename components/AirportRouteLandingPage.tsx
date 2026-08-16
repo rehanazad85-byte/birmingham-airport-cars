@@ -30,6 +30,8 @@ export function AirportRouteLandingPage({ route }: { route: AirportRoute }) {
   const canonical = `https://birminghamairportcars.co.uk/airport-transfers/${route.slug}`;
   const approvedPricing = getPublicRoutePricing(route.slug);
   const authorityContent = routeAuthorityContent[route.slug];
+  const isBirminghamHeathrow = route.slug === "birmingham-to-heathrow-airport";
+  const isWolverhamptonHeathrow = route.slug === "wolverhampton-to-heathrow-airport";
   const breadcrumbJsonLd = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
@@ -92,6 +94,9 @@ export function AirportRouteLandingPage({ route }: { route: AirportRoute }) {
     </section>
 
     <RouteAuthorityAnswers airport={airport} location={location} content={authorityContent} />
+
+    {isBirminghamHeathrow ? <section className="mx-auto max-w-7xl px-4 pb-16 lg:px-8"><div className="rounded-2xl border p-7"><h2 className="font-serif text-3xl">Birmingham to Heathrow and Heathrow to Birmingham</h2><div className="mt-4 grid gap-5 leading-7 text-black/65 md:grid-cols-2"><p>For a Birmingham collection, select the complete home, hotel or business address and the correct Heathrow terminal. The long-distance quotation uses the actual selected locations rather than publishing an unapproved city-wide fare.</p><p>For a Heathrow to Birmingham taxi, provide the terminal and inbound flight details so collection instructions can be agreed. Choose the vehicle using the full passenger, suitcase and bulky-item requirements.</p></div><p className="mt-5 text-sm text-black/60">Read how suitable pre-booked journeys work on our <Link className="font-semibold text-black underline" href="/long-distance-taxi">long-distance taxi service page</Link>.</p></div></section> : null}
+    {isWolverhamptonHeathrow ? <section className="mx-auto max-w-7xl px-4 pb-16 lg:px-8"><div className="rounded-2xl border p-7"><h2 className="font-serif text-3xl">Wolverhampton to London Heathrow</h2><p className="mt-4 max-w-4xl leading-7 text-black/65">This pre-booked airport transfer can collect from Wolverhampton city addresses, hotels and surrounding neighbourhoods for the selected Heathrow terminal. Exact pickup, flight, passenger and luggage details support a useful long-distance plan without inventing a universal fare or journey time.</p></div></section> : null}
 
     <AirportKnowledge airport={airport} knowledge={knowledge} />
 

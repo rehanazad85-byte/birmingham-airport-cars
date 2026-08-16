@@ -27,8 +27,8 @@ export type SeoAirport = {
 export const seoAirports: Record<AirportHubSlug, SeoAirport> = {
   "birmingham-airport": {
     slug: "birmingham-airport", code: "BHX", name: "Birmingham Airport", shortName: "Birmingham",
-    metaTitle: "Birmingham Airport Transfers | West Midlands Taxi Service",
-    metaDescription: "Pre-book Birmingham Airport transfers from Walsall and across the West Midlands, with exact-address quotes and free or paid airport access options.",
+    metaTitle: "Birmingham Airport Taxi & BHX Transfers",
+    metaDescription: "Pre-book a taxi to or from Birmingham Airport (BHX). Get an exact-address quote, choose free or paid airport access and add a return journey.",
     overview: "Birmingham Airport is the closest major airport for many West Midlands journeys. Exact-address quoting helps account for the different approaches from each town and neighbourhood.",
     departureGuidance: "Customers can choose the free drop-off point, approximately a five-minute walk to the terminal, or the paid Drop & Go option closer to the terminal.",
     collectionGuidance: "For collections, choose the included free pickup point or the paid Drop & Go option closer to the terminal. The paid collection option has a maximum 15-minute waiting period.",
