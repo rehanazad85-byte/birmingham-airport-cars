@@ -13,6 +13,13 @@ export const expandedRouteSlugs = [
   "coventry-to-birmingham-airport",
   "nottingham-to-birmingham-airport",
   "derby-to-birmingham-airport",
+  "coventry-to-heathrow-airport",
+  "derby-to-heathrow-airport",
+  "nottingham-to-heathrow-airport",
+  "birmingham-to-manchester-airport",
+  "wolverhampton-to-manchester-airport",
+  "nottingham-to-manchester-airport",
+  "derby-to-manchester-airport",
 ] as const;
 
 export type ExpandedRouteSlug = (typeof expandedRouteSlugs)[number];
@@ -106,6 +113,41 @@ export const expandedRoutes: Record<ExpandedRouteSlug, ExpandedRoute> = {
     { question: "Can you collect from a Derby hotel or business address?", answer: "Yes. Select the full address and provide the property name or practical entrance when the booking details are confirmed." },
     { question: "How is a Derby to Birmingham Airport fare calculated?", answer: "The route has no published fixed fare. The existing live-distance system uses the selected Derby pickup and airport destination, with airport access handled separately." },
     { question: "What should a Derby group enter for luggage?", answer: "Count every passenger and large suitcase, and mention bulky items separately so the selected vehicle remains within its capacity." },
+  ] }),
+  "coventry-to-heathrow-airport": expandedRoute("coventry-to-heathrow-airport", "coventry", "heathrow-airport", undefined, "A Heathrow journey from Coventry needs the correct terminal and a collection time planned around the selected address, flight schedule and likely motorway conditions. The page does not assume one journey time for every part of the city.", { supportingParagraphs: ["A return can be arranged from Heathrow to Coventry on the same booking. The inbound flight and terminal details support the collection plan, while the Coventry destination remains the exact address selected by the customer."], routeSpecificFaqs: [
+    { question: "Can I book Heathrow Airport back to Coventry?", answer: "Yes. Select a return journey and provide the Heathrow terminal and inbound flight details so the airport collection can be planned for the Coventry address entered." },
+    { question: "Is there a fixed Coventry to Heathrow fare?", answer: "No approved fixed fare is published for this route. The existing calculator uses the selected Coventry address and Heathrow terminal destination to calculate the journey." },
+    { question: "What Coventry pickup details should I provide?", answer: "Select the full property, hotel, workplace or university-area address and clarify the practical entrance when the collection is confirmed." },
+  ] }),
+  "derby-to-heathrow-airport": expandedRoute("derby-to-heathrow-airport", "derby", "heathrow-airport", undefined, "Derby to London Heathrow is a pre-booked long-distance airport journey. The selected Derby pickup and correct Heathrow terminal are required before the live system can calculate a useful quotation.", { supportingParagraphs: ["For Heathrow to Derby travel, the return leg reverses the selected journey and retains the terminal and flight information needed for collection. Passenger and luggage totals should cover everyone travelling in both directions."], routeSpecificFaqs: [
+    { question: "Can I arrange Heathrow to Derby as the return journey?", answer: "Yes. Add the return date and time, then provide the correct inbound flight and terminal details for the Heathrow collection." },
+    { question: "How is the Derby to Heathrow fare calculated?", answer: "No fixed fare is published. The existing live-distance calculator uses the exact Derby pickup, Heathrow destination and selected vehicle, with airport access added separately." },
+    { question: "Can the Derby pickup be a hotel or workplace?", answer: "Yes. Select the complete address and identify the property or practical entrance when the booking details are reviewed." },
+  ] }),
+  "nottingham-to-heathrow-airport": expandedRoute("nottingham-to-heathrow-airport", "nottingham", "heathrow-airport", undefined, "Nottingham to London Heathrow is a substantial pre-booked airport transfer. The live quotation uses the actual Nottingham-area pickup and selected Heathrow terminal instead of treating the city as one generic starting point.", { supportingParagraphs: ["Collections can be quoted from Nottingham city, West Bridgford, Beeston and nearby addresses. A Heathrow to Nottingham return uses the confirmed terminal, flight and Nottingham destination details rather than creating a separate reverse-direction route page."], routeSpecificFaqs: [
+    { question: "Can I book a Heathrow to Nottingham taxi for the journey home?", answer: "Yes. Book the return together, select the Nottingham destination and provide the correct Heathrow flight and terminal information for collection planning." },
+    { question: "Do you quote from West Bridgford or Beeston to Heathrow?", answer: "Yes. Select the complete address so the live calculation begins at the correct Nottingham-area pickup rather than an assumed city-centre point." },
+    { question: "How much is a Nottingham to Heathrow taxi?", answer: "There is no approved fixed fare for this route. Use the exact-address calculator to price the selected pickup, Heathrow destination and vehicle, with airport access handled separately." },
+  ] }),
+  "birmingham-to-manchester-airport": expandedRoute("birmingham-to-manchester-airport", "birmingham", "manchester-airport", undefined, "Birmingham addresses range from central hotels and businesses to residential districts on different approaches to the motorway network. The exact pickup and Manchester Airport terminal information are therefore used for the quotation.", { supportingParagraphs: ["Manchester Airport to Birmingham can be added as the return leg without creating a second route page. The customer should provide the inbound flight and terminal, then select the precise Birmingham destination for the journey home."], routeSpecificFaqs: [
+    { question: "Can I book Manchester Airport back to Birmingham?", answer: "Yes. Add the return journey and provide the Manchester terminal and inbound flight details together with the exact Birmingham destination." },
+    { question: "Is there a fixed Birmingham to Manchester Airport fare?", answer: "No approved fixed fare is published for this route. The existing calculator prices the exact selected addresses and vehicle, then adds Manchester Airport access separately." },
+    { question: "Can collection start at a Birmingham hotel or business?", answer: "Yes. Select the full address and identify the practical entrance so the collection is based on the correct city location." },
+  ] }),
+  "wolverhampton-to-manchester-airport": expandedRoute("wolverhampton-to-manchester-airport", "wolverhampton", "manchester-airport", undefined, "A Wolverhampton to Manchester Airport transfer is planned from the selected city, hotel or residential address to the terminal confirmed by the airline. No single city-wide fare or duration is assumed.", { supportingParagraphs: ["Tettenhall, Penn, Wednesfield and other Wolverhampton starting points do not share one identical road approach. The exact-address calculation and complete luggage details help produce a more useful quotation and vehicle choice."], routeSpecificFaqs: [
+    { question: "Can Manchester Airport collection return to Wolverhampton?", answer: "Yes. Add the return journey, supply the inbound flight and terminal, and select the complete Wolverhampton destination address." },
+    { question: "How is the Wolverhampton to Manchester Airport fare calculated?", answer: "The route has no approved fixed fare. The existing live-distance system uses the selected addresses and vehicle, with Manchester Airport access added separately." },
+    { question: "Can the pickup be in Tettenhall, Penn or Wednesfield?", answer: "Yes. Select the complete address so the quotation starts from the actual Wolverhampton-area collection point." },
+  ] }),
+  "nottingham-to-manchester-airport": expandedRoute("nottingham-to-manchester-airport", "nottingham", "manchester-airport", undefined, "Nottingham to Manchester Airport is offered as a suitable pre-booked long-distance transfer, not as local taxi coverage in either city. The quotation begins with the exact Nottingham-area address and selected airport destination.", { supportingParagraphs: ["Nottingham city, West Bridgford and Beeston pickups can reach the wider road network differently. For a Manchester Airport to Nottingham return, the terminal, flight and precise Nottingham destination should all be supplied."], routeSpecificFaqs: [
+    { question: "Can I book Manchester Airport to Nottingham as a return?", answer: "Yes. Add the return leg and provide the inbound flight, terminal and complete Nottingham destination for collection planning." },
+    { question: "Can the Nottingham pickup be in West Bridgford or Beeston?", answer: "Yes. Select the complete address so the existing live system calculates from the correct starting point." },
+    { question: "Is there a standard Nottingham to Manchester Airport fare?", answer: "No approved fixed fare is published. The quote uses the selected addresses and vehicle, with Manchester Airport access applied separately." },
+  ] }),
+  "derby-to-manchester-airport": expandedRoute("derby-to-manchester-airport", "derby", "manchester-airport", undefined, "Derby to Manchester Airport is a pre-booked transfer calculated from the selected Derby property, hotel or workplace to the airport destination entered by the customer. No mileage, duration or fixed price is assumed on the route page.", { supportingParagraphs: ["For the reverse Manchester Airport to Derby journey, provide the terminal and flight details and keep the Derby destination precise. Group size, large suitcases and bulky items should be entered before choosing the vehicle."], routeSpecificFaqs: [
+    { question: "Can I book Manchester Airport back to Derby?", answer: "Yes. Add the return journey and provide the correct flight, terminal and complete Derby destination address." },
+    { question: "How do I get a Derby to Manchester Airport price?", answer: "Use the exact-address calculator. No approved fixed fare is published, so the existing live-distance system prices the selected route and vehicle before airport access is added." },
+    { question: "What luggage details are needed for a Derby group?", answer: "Count every passenger and large suitcase and disclose bulky items so the chosen comfort-standard vehicle remains within its capacity." },
   ] }),
 };
 
