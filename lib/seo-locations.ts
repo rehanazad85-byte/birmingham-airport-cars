@@ -26,11 +26,11 @@ export const seoLocations: Record<SeoLocationSlug, SeoLocation> = {
   },
   coventry: {
     slug: "coventry", name: "Coventry", areaPagePublished: false,
-    collectionContext: "Coventry collections can begin at a home, hotel, workplace or university-area address, with the exact starting point used for routing towards Birmingham Airport.",
+    collectionContext: "Coventry collections can begin at a home, hotel, workplace or university-area address, with the exact starting point used for live routing and quotation.",
   },
   nottingham: {
     slug: "nottingham", name: "Nottingham", areaPagePublished: false,
-    collectionContext: "Nottingham journeys can be quoted from the city, West Bridgford, Beeston and nearby addresses, with the selected pickup determining the live driving route to Birmingham Airport.",
+    collectionContext: "Nottingham journeys can be quoted from the city, West Bridgford, Beeston and nearby addresses, with the selected pickup determining the live driving route used for the quotation.",
   },
   derby: {
     slug: "derby", name: "Derby", areaPagePublished: false,

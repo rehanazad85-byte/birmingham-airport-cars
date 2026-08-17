@@ -55,6 +55,32 @@ describe("Phase 4A SEO route architecture", () => {
     }
   });
 
+  it("uses each expanded route's actual destination airport throughout rendered guidance", () => {
+    const destinations = {
+      "coventry-to-heathrow-airport": "Heathrow Airport",
+      "derby-to-heathrow-airport": "Heathrow Airport",
+      "nottingham-to-heathrow-airport": "Heathrow Airport",
+      "birmingham-to-manchester-airport": "Manchester Airport",
+      "wolverhampton-to-manchester-airport": "Manchester Airport",
+      "nottingham-to-manchester-airport": "Manchester Airport",
+      "derby-to-manchester-airport": "Manchester Airport",
+    } as const;
+
+    for (const [slug, airport] of Object.entries(destinations)) {
+      const route = expandedRoutes[slug as keyof typeof destinations];
+      const html = renderToStaticMarkup(<ExpandedAirportRoutePage route={route} />);
+      expect(html).toContain(`exact pickup and ${airport} destination`);
+      expect(html).not.toContain("exact pickup and Birmingham Airport destination");
+      expect(html).not.toContain("routing towards Birmingham Airport");
+      expect(html).not.toContain("driving route to Birmingham Airport");
+    }
+
+    for (const slug of ["leicester-to-birmingham-airport", "coventry-to-birmingham-airport", "nottingham-to-birmingham-airport", "derby-to-birmingham-airport"] as const) {
+      const html = renderToStaticMarkup(<ExpandedAirportRoutePage route={expandedRoutes[slug]} />);
+      expect(html).toContain("exact pickup and Birmingham Airport destination");
+    }
+  });
+
   it("publishes four Wave 1 BHX routes with live pricing and no invented fixed fares", () => {
     const slugs = ["leicester", "coventry", "nottingham", "derby"] as const;
     const routeSpecificTerms = {
