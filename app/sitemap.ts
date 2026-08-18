@@ -17,6 +17,7 @@ const publicRoutes = [
   "/long-distance-taxi",
   "/privacy-policy",
   "/terms",
+  "/terms-and-conditions",
 ] as const;
 
 export default function sitemap(): MetadataRoute.Sitemap {

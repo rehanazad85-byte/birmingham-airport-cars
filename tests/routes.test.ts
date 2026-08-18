@@ -50,6 +50,13 @@ describe("Google Routes normalisation", () => {
     });
   });
 
+  it("uses Google's primary route without selecting a shorter alternative", () => {
+    expect(normaliseRoutesResponse({ routes: [
+      { distanceMeters: 8046.72, duration: "480s" },
+      { distanceMeters: 5632.704, duration: "900s" },
+    ] })).toMatchObject({ distanceMiles: 5, durationSeconds: 480 });
+  });
+
   it("fails safely when no route is returned", () => {
     expect(() => normaliseRoutesResponse({ routes: [] })).toThrowError(new RouteDistanceError("NO_ROUTE"));
   });
@@ -74,6 +81,10 @@ describe("Google Routes normalisation", () => {
       }),
     );
     const request = fetchImplementation.mock.calls[0][1];
-    expect(JSON.parse(String(request?.body))).toMatchObject({ travelMode: "DRIVE" });
+    expect(JSON.parse(String(request?.body))).toMatchObject({
+      travelMode: "DRIVE",
+      routingPreference: "TRAFFIC_AWARE",
+      computeAlternativeRoutes: false,
+    });
   });
 });

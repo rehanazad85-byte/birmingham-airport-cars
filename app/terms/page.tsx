@@ -1,1 +1,2 @@
-import { PageHero } from "@/components/PageHero";export default function Page(){return <><PageHero eyebrow="Legal" title="Terms and conditions"><p>Important information about airport-transfer enquiries and bookings.</p></PageHero><article className="mx-auto max-w-3xl px-4 py-16 text-black/65"><p>A journey is not confirmed by viewing an estimate or submitting initial details. The complete journey requirements and confirmed quotation must be agreed before booking.</p></article></>}
+import { redirect } from "next/navigation";
+export default function Page(){redirect("/terms-and-conditions")}

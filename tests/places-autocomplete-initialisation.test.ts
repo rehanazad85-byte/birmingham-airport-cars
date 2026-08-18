@@ -102,4 +102,17 @@ describe("Places API (New) autocomplete initialisation", () => {
     expect(fetchFields).toHaveBeenCalledWith({ fields: ["formattedAddress", "location", "addressComponents", "displayName", "id", "types"] });
     expect(onPlace).toHaveBeenCalledWith(expect.objectContaining({ placeId: "bhx", postcode: "B26 3QJ", country: "GB" }));
   });
+
+  it("requests the full formatted address and property-level components available from Places", async () => {
+    const element = new MockAutocompleteElement();
+    const onPlace = vi.fn();
+    const fetchFields = vi.fn().mockResolvedValue(undefined);
+    const selectedPlace = { fetchFields, formattedAddress: "Flat 2, 10 Pargeter Street, Walsall WS2 8RR, UK", id: "property", displayName: "Flat 2", types: ["street_address"], location: { lat: () => 52.59, lng: () => -1.99 }, addressComponents: [{ longText: "Flat 2", shortText: "Flat 2", types: ["subpremise"] }, { longText: "10", shortText: "10", types: ["street_number"] }, { longText: "Pargeter Street", shortText: "Pargeter St", types: ["route"] }, { longText: "WS2 8RR", shortText: "WS2 8RR", types: ["postal_code"] }] };
+    mountPlaceAutocomplete({ host: { appendChild: vi.fn() } as unknown as HTMLElement, library: { PlaceAutocompleteElement: class { constructor() { return element; } } as never }, label: "Pickup", placeholder: "Enter pickup", value: "", onInput: vi.fn(), onPlace });
+    const event = new Event("gmp-select") as Event & { placePrediction: { toPlace(): typeof selectedPlace } };
+    event.placePrediction = { toPlace: () => selectedPlace };
+    element.dispatchEvent(event);
+    await vi.waitFor(() => expect(onPlace).toHaveBeenCalledOnce());
+    expect(onPlace).toHaveBeenCalledWith(expect.objectContaining({ streetNumber: "10", street: "Pargeter Street", premises: "Flat 2", postcode: "WS2 8RR", placeId: "property" }));
+  });
 });

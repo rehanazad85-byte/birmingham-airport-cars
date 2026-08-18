@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Script from "next/script";
 import { usePathname, useSearchParams } from "next/navigation";
 import { isValidMeasurementId } from "@/lib/analytics";
+import { analyticsConsentEvent, readAnalyticsConsent, type AnalyticsConsent } from "@/lib/cookie-consent";
 
 declare global {
   interface Window {
@@ -15,8 +16,16 @@ declare global {
 export function GoogleAnalytics({ measurementId }: { measurementId?: string }) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const [consent, setConsent] = useState<AnalyticsConsent | null>(null);
 
-  const isEnabled = isValidMeasurementId(measurementId);
+  useEffect(() => {
+    setConsent(readAnalyticsConsent(window.localStorage));
+    const updateConsent = (event: Event) => setConsent((event as CustomEvent<AnalyticsConsent>).detail);
+    window.addEventListener(analyticsConsentEvent, updateConsent);
+    return () => window.removeEventListener(analyticsConsentEvent, updateConsent);
+  }, []);
+
+  const isEnabled = consent === "accepted" && isValidMeasurementId(measurementId);
 
   useEffect(() => {
     if (!isEnabled || !window.gtag) {
@@ -49,6 +58,8 @@ export function GoogleAnalytics({ measurementId }: { measurementId?: string }) {
           window.dataLayer = window.dataLayer || [];
           function gtag(){window.dataLayer.push(arguments);}
           window.gtag = gtag;
+          gtag('js', new Date());
+          gtag('config', '${measurementId}');
         `}
       </Script>
     </>

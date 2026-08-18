@@ -9,6 +9,18 @@ export interface RouteDistanceResult {
   durationSeconds: number;
 }
 
+export function formatDistanceMiles(distanceMiles: number): string {
+  return `${distanceMiles.toFixed(1)} miles`;
+}
+
+export function formatDurationSeconds(durationSeconds: number): string {
+  const totalMinutes = Math.max(1, Math.round(durationSeconds / 60));
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+  if (hours === 0) return `${minutes} min${minutes === 1 ? "" : "s"}`;
+  return `${hours} hr${hours === 1 ? "" : "s"}${minutes ? ` ${minutes} min${minutes === 1 ? "" : "s"}` : ""}`;
+}
+
 interface GoogleRoutesResponse {
   routes?: Array<{
     distanceMeters?: unknown;
@@ -99,6 +111,8 @@ export async function computeDrivingRoute(
         origin: { location: { latLng: origin } },
         destination: { location: { latLng: destination } },
         travelMode: "DRIVE",
+        routingPreference: "TRAFFIC_AWARE",
+        computeAlternativeRoutes: false,
       }),
       cache: "no-store",
     });
