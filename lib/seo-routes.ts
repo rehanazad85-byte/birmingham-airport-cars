@@ -20,6 +20,11 @@ export const expandedRouteSlugs = [
   "wolverhampton-to-manchester-airport",
   "nottingham-to-manchester-airport",
   "derby-to-manchester-airport",
+  "birmingham-to-gatwick-airport",
+  "wolverhampton-to-gatwick-airport",
+  "nottingham-to-gatwick-airport",
+  "wolverhampton-to-luton-airport",
+  "leicester-to-stansted-airport",
 ] as const;
 
 export type ExpandedRouteSlug = (typeof expandedRouteSlugs)[number];
@@ -148,6 +153,31 @@ export const expandedRoutes: Record<ExpandedRouteSlug, ExpandedRoute> = {
     { question: "Can I book Manchester Airport back to Derby?", answer: "Yes. Add the return journey and provide the correct flight, terminal and complete Derby destination address." },
     { question: "How do I get a Derby to Manchester Airport price?", answer: "Use the exact-address calculator. No approved fixed fare is published, so the existing live-distance system prices the selected route and vehicle before airport access is added." },
     { question: "What luggage details are needed for a Derby group?", answer: "Count every passenger and large suitcase and disclose bulky items so the chosen comfort-standard vehicle remains within its capacity." },
+  ] }),
+  "birmingham-to-gatwick-airport": expandedRoute("birmingham-to-gatwick-airport", "birmingham", "gatwick-airport", undefined, "A Birmingham to Gatwick Airport journey should be planned from the exact city, hotel, business or residential address to the North or South Terminal shown by the airline. The route page does not assume one distance or journey time for every Birmingham pickup.", { supportingParagraphs: ["Central Birmingham collections can require a named building and practical stopping point, while residential districts begin from different parts of the road network. For a Gatwick to Birmingham return, provide the inbound flight, terminal and complete Birmingham destination so the collection can be reviewed as part of the same booking."], routeSpecificFaqs: [
+    { question: "Can I book Gatwick Airport back to Birmingham?", answer: "Yes. Add the return journey, supply the inbound flight and North or South Terminal, and select the complete Birmingham destination address." },
+    { question: "Can the Birmingham pickup be a city-centre hotel or business?", answer: "Yes. Select the full address and identify the building or practical entrance so the quotation and collection use the correct city location." },
+    { question: "How is the Birmingham to Gatwick fare calculated?", answer: "No approved fixed fare is published for this route. The existing live-distance calculator uses the selected Birmingham pickup, Gatwick destination and vehicle, with airport access handled separately." },
+  ] }),
+  "wolverhampton-to-gatwick-airport": expandedRoute("wolverhampton-to-gatwick-airport", "wolverhampton", "gatwick-airport", undefined, "A pre-booked Wolverhampton to Gatwick Airport transfer uses the complete pickup address and the flight's North or South Terminal. Starting points across the city do not share one assumed route, fare or journey time.", { supportingParagraphs: ["Collections in Tettenhall, Penn, Wednesfield and other Wolverhampton neighbourhoods should use the actual property, hotel or workplace address. A Gatwick to Wolverhampton return can be included by supplying the inbound flight, terminal and precise destination for the journey home."], routeSpecificFaqs: [
+    { question: "Can Gatwick Airport collection return to Wolverhampton?", answer: "Yes. Add the return leg and provide the inbound flight, North or South Terminal and full Wolverhampton destination address." },
+    { question: "Can collection start in Tettenhall, Penn or Wednesfield?", answer: "Yes. Select the complete address so the live quotation begins at the actual Wolverhampton-area pickup rather than a general city point." },
+    { question: "How do I price a Wolverhampton to Gatwick transfer?", answer: "Use the exact-address calculator. This route has no approved fixed fare, so the existing live-distance system prices the selected addresses and vehicle before airport access is added." },
+  ] }),
+  "nottingham-to-gatwick-airport": expandedRoute("nottingham-to-gatwick-airport", "nottingham", "gatwick-airport", undefined, "Nottingham to Gatwick Airport is offered as a suitable pre-booked long-distance transfer, not as local taxi coverage in Nottingham or at Gatwick. The live quotation uses the exact Nottingham-area pickup and the correct Gatwick terminal.", { supportingParagraphs: ["Nottingham city, West Bridgford and Beeston collections can begin from different sides of the area, so the selected property, hotel or workplace matters. For a Gatwick to Nottingham return, provide the inbound flight, North or South Terminal and complete Nottingham destination rather than creating a separate reverse route."], routeSpecificFaqs: [
+    { question: "Can I book Gatwick Airport to Nottingham as the return journey?", answer: "Yes. Add the return leg and provide the inbound flight, Gatwick terminal and exact Nottingham destination for collection planning." },
+    { question: "Can the pickup be in West Bridgford or Beeston?", answer: "Yes. Select the full address so the quotation starts from the actual Nottingham-area collection point." },
+    { question: "Is there a fixed Nottingham to Gatwick fare?", answer: "No approved fixed fare is published. The existing live-distance calculator prices the selected pickup, Gatwick destination and vehicle, with airport access applied separately." },
+  ] }),
+  "wolverhampton-to-luton-airport": expandedRoute("wolverhampton-to-luton-airport", "wolverhampton", "luton-airport", undefined, "Wolverhampton to Luton Airport is a pre-booked private airport transfer calculated from the selected city or neighbourhood address to the airport destination entered by the customer. No city-wide fare, mileage or duration is assumed.", { supportingParagraphs: ["For a Luton Airport to Wolverhampton return, provide the inbound flight details and follow the airport meeting instructions confirmed with the booking. The journey home should use the complete Wolverhampton destination and the passenger and luggage totals for that leg."], routeSpecificFaqs: [
+    { question: "Can I book Luton Airport back to Wolverhampton?", answer: "Yes. Add the return journey, provide the inbound flight details and select the complete Wolverhampton destination address." },
+    { question: "How is the Wolverhampton to Luton fare calculated?", answer: "No approved fixed fare is published for this route. The existing live-distance system uses the selected addresses and vehicle, with Luton Airport access handled separately." },
+    { question: "What should I enter for a Wolverhampton group?", answer: "Enter every passenger and large suitcase and disclose bulky items before choosing a vehicle so its capacity remains suitable for the journey." },
+  ] }),
+  "leicester-to-stansted-airport": expandedRoute("leicester-to-stansted-airport", "leicester", "stansted-airport", undefined, "Leicester to Stansted Airport is a suitable pre-booked long-distance transfer rather than local taxi coverage in Leicester or Stansted. The exact Leicester-area pickup and selected airport destination are used for the live quotation.", { supportingParagraphs: ["A Leicester city address, hotel, Oadby home or Wigston pickup needs its own complete collection details rather than a generic city-centre starting point. For a Stansted to Leicester return, provide the inbound flight information, follow the confirmed airport meeting instructions and select the exact destination for the journey home."], routeSpecificFaqs: [
+    { question: "Can I book Stansted Airport back to Leicester?", answer: "Yes. Add the return journey, provide the inbound flight details and select the complete Leicester-area destination address." },
+    { question: "Can the pickup be in Oadby or Wigston?", answer: "Yes. Select the full address so the live calculation and collection plan start from the correct Leicester-area location." },
+    { question: "How do I get a Leicester to Stansted price?", answer: "Use the exact-address calculator. No approved fixed fare is published, so the existing live-distance system prices the selected route and vehicle before airport access is added." },
   ] }),
 };
 

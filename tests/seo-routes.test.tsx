@@ -7,6 +7,7 @@ import { ExpandedAirportRoutePage } from "../components/ExpandedAirportRoutePage
 import { airportHubSlugs, seoAirports } from "../lib/seo-airports";
 import { expandedRoutes, expandedRouteSlugs, getPublishedRoute, getPublishedRoutesForAirport, getRelatedPublishedRoutes, publishedRoutes, publishedRouteSlugs, routeMatrix } from "../lib/seo-routes";
 import { locationSlugs } from "../lib/locations";
+import { seoOnlyLocationSlugs } from "../lib/seo-locations";
 import LongDistanceTaxiPage, { metadata as longDistanceMetadata } from "../app/long-distance-taxi/page";
 
 const baseUrl = "https://birminghamairportcars.co.uk";
@@ -19,16 +20,23 @@ const phase4BWave1Slugs = [
   "nottingham-to-manchester-airport",
   "derby-to-manchester-airport",
 ] as const;
+const phase4BWave2Slugs = [
+  "birmingham-to-gatwick-airport",
+  "wolverhampton-to-gatwick-airport",
+  "nottingham-to-gatwick-airport",
+  "wolverhampton-to-luton-airport",
+  "leicester-to-stansted-airport",
+] as const;
 
 describe("Phase 4A SEO route architecture", () => {
   it("represents the expanded 12 by 7 matrix but publishes only researched routes", () => {
     expect(routeMatrix).toHaveLength(84);
-    expect(publishedRoutes).toHaveLength(32);
-    expect(routeMatrix.filter((route) => route.published)).toHaveLength(32);
+    expect(publishedRoutes).toHaveLength(37);
+    expect(routeMatrix.filter((route) => route.published)).toHaveLength(37);
   });
 
   it("preserves all existing URLs and adds five approved Walsall routes", () => {
-    expect(expandedRouteSlugs).toHaveLength(16);
+    expect(expandedRouteSlugs).toHaveLength(21);
     expect(getPublishedRoute("walsall-to-birmingham-airport")?.fixedSaloonFare).toBe(47);
     expect(getPublishedRoute("walsall-to-heathrow-airport")?.fixedSaloonFare).toBe(185);
     expect(getPublishedRoute("walsall-to-gatwick-airport")?.fixedSaloonFare).toBe(225);
@@ -49,10 +57,39 @@ describe("Phase 4A SEO route architecture", () => {
       expect(html).toContain("No fixed fare is published");
       expect(html).not.toMatch(/£\d+ Saloon journey fare/);
     }
-    for (const draft of ["birmingham-to-gatwick-airport", "wolverhampton-to-gatwick-airport", "nottingham-to-gatwick-airport", "oxford-to-heathrow-airport", "telford-to-manchester-airport"]) {
+    for (const draft of ["oxford-to-heathrow-airport", "telford-to-manchester-airport", "bristol-to-heathrow-airport", "sutton-coldfield-to-manchester-airport", "birmingham-to-east-midlands-airport", "coventry-to-manchester-airport", "derby-to-east-midlands-airport", "leicester-to-heathrow-airport"]) {
       expect(getPublishedRoute(draft)).toBeUndefined();
       expect(await generateMetadata({ params: Promise.resolve({ slug: draft }) })).toEqual({});
     }
+  });
+
+  it("publishes exactly the five approved Phase 4B Wave 2 live-distance routes", async () => {
+    const routeSpecificTerms = {
+      "birmingham-to-gatwick-airport": ["city-centre hotel or business", "North or South Terminal", "Gatwick Airport back to Birmingham"],
+      "wolverhampton-to-gatwick-airport": ["Tettenhall", "Penn", "Wednesfield"],
+      "nottingham-to-gatwick-airport": ["West Bridgford", "Beeston", "not as local taxi coverage"],
+      "wolverhampton-to-luton-airport": ["Luton Airport to Wolverhampton return", "inbound flight details", "No city-wide fare"],
+      "leicester-to-stansted-airport": ["Oadby", "Wigston", "rather than local taxi coverage"],
+    } as const;
+
+    for (const slug of phase4BWave2Slugs) {
+      const route = expandedRoutes[slug];
+      expect(route.fixedSaloonFare).toBeUndefined();
+      expect(route.supportingParagraphs).toHaveLength(1);
+      expect(route.faqs).toHaveLength(6);
+      const metadata = await generateMetadata({ params: Promise.resolve({ slug }) });
+      expect(metadata.alternates?.canonical).toBe(`/airport-transfers/${slug}`);
+      const html = renderToStaticMarkup(<ExpandedAirportRoutePage route={route} />);
+      expect(html).toContain("Calculate your live fare");
+      expect(html).toContain("No fixed fare is published");
+      expect(html).not.toMatch(/£\d+ Saloon journey fare/);
+      for (const term of routeSpecificTerms[slug]) expect(html).toContain(term);
+    }
+
+    expect(renderToStaticMarkup(<ExpandedAirportRoutePage route={expandedRoutes["nottingham-to-gatwick-airport"]} />)).not.toContain("/areas-we-cover/nottingham");
+    expect(renderToStaticMarkup(<ExpandedAirportRoutePage route={expandedRoutes["leicester-to-stansted-airport"]} />)).not.toContain("/areas-we-cover/leicester");
+    expect(locationSlugs).toHaveLength(8);
+    expect(seoOnlyLocationSlugs).toEqual(["leicester", "coventry", "nottingham", "derby"]);
   });
 
   it("uses each expanded route's actual destination airport throughout rendered guidance", () => {
@@ -64,6 +101,11 @@ describe("Phase 4A SEO route architecture", () => {
       "wolverhampton-to-manchester-airport": "Manchester Airport",
       "nottingham-to-manchester-airport": "Manchester Airport",
       "derby-to-manchester-airport": "Manchester Airport",
+      "birmingham-to-gatwick-airport": "Gatwick Airport",
+      "wolverhampton-to-gatwick-airport": "Gatwick Airport",
+      "nottingham-to-gatwick-airport": "Gatwick Airport",
+      "wolverhampton-to-luton-airport": "Luton Airport",
+      "leicester-to-stansted-airport": "Stansted Airport",
     } as const;
 
     for (const [slug, airport] of Object.entries(destinations)) {
@@ -114,6 +156,13 @@ describe("Phase 4A SEO route architecture", () => {
     expect(html).not.toContain("AggregateRating");
   });
 
+  it("aligns the visible expanded-route breadcrumb with its structured data", () => {
+    const html = renderToStaticMarkup(<ExpandedAirportRoutePage route={expandedRoutes["birmingham-to-gatwick-airport"]} />);
+    expect(html).toContain('"name":"Birmingham to Gatwick Airport"');
+    expect(html).toContain('aria-current="page" class="text-black">Birmingham to Gatwick Airport</li>');
+    expect(html).not.toContain('aria-current="page" class="text-black">Birmingham</li>');
+  });
+
   it("renders every airport hub with only published route links", () => {
     expect(airportHubSlugs).toHaveLength(7);
     for (const slug of airportHubSlugs) {
@@ -134,6 +183,18 @@ describe("Phase 4A SEO route architecture", () => {
     expect(manchester).toContain("suitable pre-booked airport transfers");
   });
 
+  it("strengthens the Gatwick, Luton and Stansted hubs with only approved Wave 2 routes", () => {
+    const gatwick = renderToStaticMarkup(<AirportHubPage airport={seoAirports["gatwick-airport"]} />);
+    const luton = renderToStaticMarkup(<AirportHubPage airport={seoAirports["luton-airport"]} />);
+    const stansted = renderToStaticMarkup(<AirportHubPage airport={seoAirports["stansted-airport"]} />);
+    for (const slug of ["walsall-to-gatwick-airport", ...phase4BWave2Slugs.filter((item) => item.endsWith("gatwick-airport"))]) expect(gatwick).toContain(`/airport-transfers/${slug}`);
+    for (const slug of ["walsall-to-luton-airport", "wolverhampton-to-luton-airport"]) expect(luton).toContain(`/airport-transfers/${slug}`);
+    for (const slug of ["walsall-to-stansted-airport", "leicester-to-stansted-airport"]) expect(stansted).toContain(`/airport-transfers/${slug}`);
+    expect(gatwick).toContain("Walsall, Birmingham, Wolverhampton and Nottingham");
+    expect(luton).toContain("Walsall and Wolverhampton");
+    expect(stansted).toContain("Walsall and Leicester");
+  });
+
   it("includes hubs and published routes in the sitemap while excluding drafts", () => {
     const urls = sitemap().map((entry) => entry.url);
     for (const slug of airportHubSlugs) expect(urls).toContain(`${baseUrl}/airport-transfers/${slug}`);
@@ -142,11 +203,14 @@ describe("Phase 4A SEO route architecture", () => {
     expect(urls).not.toContain(`${baseUrl}/api/route-distance`);
     expect(new Set(urls).size).toBe(urls.length);
     for (const slug of phase4BWave1Slugs) expect(urls).toContain(`${baseUrl}/airport-transfers/${slug}`);
+    for (const slug of phase4BWave2Slugs) expect(urls).toContain(`${baseUrl}/airport-transfers/${slug}`);
+    for (const reverse of ["gatwick-airport-to-birmingham", "gatwick-airport-to-nottingham", "luton-airport-to-wolverhampton", "stansted-airport-to-leicester"]) expect(urls).not.toContain(`${baseUrl}/airport-transfers/${reverse}`);
+    for (const held of ["oxford-to-heathrow-airport", "telford-to-manchester-airport", "bristol-to-heathrow-airport", "sutton-coldfield-to-manchester-airport", "birmingham-to-east-midlands-airport", "coventry-to-manchester-airport", "derby-to-east-midlands-airport", "leicester-to-heathrow-airport"]) expect(urls).not.toContain(`${baseUrl}/airport-transfers/${held}`);
   });
 
   it("generates unique route and hub metadata with canonical URLs", async () => {
     const params = generateStaticParams();
-    expect(params).toHaveLength(39);
+    expect(params).toHaveLength(44);
     const routeMetadata = await generateMetadata({ params: Promise.resolve({ slug: "walsall-to-luton-airport" }) });
     const hubMetadata = await generateMetadata({ params: Promise.resolve({ slug: "luton-airport" }) });
     expect(routeMetadata.title).toContain("Walsall to Luton Airport");
@@ -163,6 +227,29 @@ describe("Phase 4A SEO route architecture", () => {
       for (const related of getRelatedPublishedRoutes(route)) expect(publishedRouteSlugs).toContain(related.slug);
     }
     expect(new Set(publishedRouteSlugs).size).toBe(publishedRouteSlugs.length);
+    const expectedRelationships = {
+      "birmingham-to-gatwick-airport": ["birmingham-to-birmingham-airport", "birmingham-to-heathrow-airport", "birmingham-to-manchester-airport"],
+      "wolverhampton-to-gatwick-airport": ["wolverhampton-to-birmingham-airport", "wolverhampton-to-heathrow-airport", "wolverhampton-to-manchester-airport"],
+      "nottingham-to-gatwick-airport": ["nottingham-to-birmingham-airport", "nottingham-to-heathrow-airport", "nottingham-to-manchester-airport"],
+      "wolverhampton-to-luton-airport": ["wolverhampton-to-birmingham-airport", "wolverhampton-to-heathrow-airport", "wolverhampton-to-manchester-airport"],
+      "leicester-to-stansted-airport": ["leicester-to-birmingham-airport", "walsall-to-stansted-airport"],
+    } as const;
+    for (const [slug, expected] of Object.entries(expectedRelationships)) {
+      const related = getRelatedPublishedRoutes(expandedRoutes[slug as keyof typeof expectedRelationships]).map((route) => route.slug);
+      for (const routeSlug of expected) expect(related).toContain(routeSlug);
+    }
+  });
+
+  it("preserves every approved Walsall fixed fare", () => {
+    expect(Object.fromEntries(["birmingham", "heathrow", "gatwick", "manchester", "east-midlands", "luton", "stansted"].map((airport) => [airport, getPublishedRoute(`walsall-to-${airport}-airport`)?.fixedSaloonFare]))).toEqual({
+      birmingham: 47,
+      heathrow: 185,
+      gatwick: 225,
+      manchester: 120,
+      "east-midlands": 85,
+      luton: 158,
+      stansted: 200,
+    });
   });
 
   it("strengthens the single BHX hub and links all Wave 1 routes", () => {
@@ -184,6 +271,9 @@ describe("Phase 4A SEO route architecture", () => {
     expect(html).toContain("/airport-transfers/birmingham-to-heathrow-airport");
     expect(html).toContain("/airport-transfers/nottingham-to-heathrow-airport");
     expect(html).toContain("/airport-transfers/derby-to-manchester-airport");
+    expect(html).toContain("/airport-transfers/birmingham-to-gatwick-airport");
+    expect(html).toContain("/airport-transfers/wolverhampton-to-luton-airport");
+    expect(html).toContain("/airport-transfers/leicester-to-stansted-airport");
     expect(html).not.toMatch(/£\d/);
     expect(sitemap().map((entry) => entry.url)).toContain(`${baseUrl}/long-distance-taxi`);
   });
