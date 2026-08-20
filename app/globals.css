@@ -1,8 +1,8 @@
 @tailwind base;@tailwind components;@tailwind utilities;
 :root{color-scheme:light}*,*::before,*::after{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#fff;color:#0b0b0c;font-family:Arial,Helvetica,sans-serif}.font-serif{font-family:Georgia,"Times New Roman",serif}::selection{background:#c79a36;color:#000}
-.quote-form,.quote-form label,.quote-form input,.quote-form select,.quote-form button,.quote-form dl,.quote-form dd{max-width:100%;min-width:0}
+.quote-form,.quote-form label,.quote-form input,.quote-form select,.quote-form button,.quote-form dl,.quote-form dd,.booking-form,.booking-form fieldset,.booking-form label,.booking-form input,.booking-form textarea,.booking-form button,.booking-form dl,.booking-form dd{max-width:100%;min-width:0}
 .bac-place-autocomplete-host{position:relative;display:block;width:100%;max-width:100%;min-width:0;min-height:2.75rem}
 .bac-place-autocomplete{display:block;width:100%;max-width:100%;min-width:0;min-height:2.75rem;color:#111;font-size:16px;--gmpx-color-surface:#fff}
 .bac-place-autocomplete::part(input){flex:1 1 auto;width:100%;max-width:100%;min-width:0;box-sizing:border-box;border:1px solid rgb(0 0 0 / .15);border-radius:.5rem;background:#fff;padding:.68rem .75rem;font:inherit;color:#111}
 .bac-place-autocomplete::part(input):focus{border-color:#d4a62a;outline:2px solid rgb(212 166 42 / .3);outline-offset:0}
-@media(max-width:479px){.quote-form{border-radius:.75rem}.quote-form input,.quote-form select{min-height:2.75rem;font-size:16px}.bac-place-autocomplete{font-size:16px}}
+@media(max-width:479px){.quote-form{border-radius:.75rem}.quote-form input,.quote-form select,.booking-form input,.booking-form textarea{min-height:2.75rem;font-size:16px}.bac-place-autocomplete{font-size:16px}}
