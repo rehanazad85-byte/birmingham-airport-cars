@@ -59,3 +59,6 @@ create table public.bookings (
 
 alter table public.bookings enable row level security;
 revoke all on table public.bookings from anon, authenticated;
+grant select, insert
+on table public.bookings
+to service_role;

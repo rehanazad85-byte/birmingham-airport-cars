@@ -240,6 +240,8 @@ describe("Phase 5B server-only Supabase persistence", () => {
     expect(migration).toContain("idempotency_key text not null unique");
     expect(migration).toContain("enable row level security");
     expect(migration).toContain("revoke all on table public.bookings from anon, authenticated");
+    expect(migration).toContain("grant select, insert\non table public.bookings\nto service_role;");
+    expect(migration).not.toMatch(/grant\s+[^;]*(?:update|delete)[^;]*\bon table public\.bookings\s+to service_role/i);
     expect(migration).toContain("deposit_pence + balance_pence = total_pence");
   });
 });
