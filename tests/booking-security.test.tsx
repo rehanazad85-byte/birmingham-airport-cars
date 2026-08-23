@@ -12,6 +12,8 @@ import { calculateBookingDeposit, defaultBookingDepositPolicy, getBookingDeposit
 import { BookingPlaceError, verifySelectedBookingPlace } from "../lib/server/booking-places";
 import { BookingPersistenceError, createSupabaseBookingRepository, type BookingRepository } from "../lib/server/booking-repository";
 import { BookingRevalidationError, BookingValidationError, createPendingBooking, type BookingSubmission } from "../lib/server/booking-service";
+import { computeDrivingRoute } from "../lib/routes";
+import { POST } from "../app/api/bookings/route";
 
 const now = new Date("2026-08-22T10:00:00.000Z");
 const pickup: SelectedPlace = { displayAddress: "10 High Street, Walsall WS1 1AA, UK", placeId: "walsall-place", latitude: 52.58, longitude: -1.98, locality: "Walsall", street: "High Street", streetNumber: "10", types: ["street_address"] };
@@ -177,6 +179,18 @@ describe("Phase 5B authoritative booking revalidation", () => {
     await expect(createPendingBooking(submission(), dependencies({ calculateRoute: async () => ({ ...outwardRoute, distanceMiles: 0 }) }))).rejects.toBeInstanceOf(BookingRevalidationError);
   });
 
+  it("logs only the route failure category and safe error metadata", async () => {
+    const diagnostic = vi.spyOn(console, "error").mockImplementation(() => {});
+    await expect(computeDrivingRoute(pickup, bhx, { apiKey: "server-test-key", fetchImplementation: async () => new Response(null, { status: 503 }) })).rejects.toThrow();
+    expect(diagnostic).toHaveBeenCalledWith("BOOKING_ROUTE_REVALIDATION_FAILED", { reason: "google_routes_non_2xx", status: 503 });
+    const output = JSON.stringify(diagnostic.mock.calls);
+    expect(output).not.toContain("server-test-key");
+    expect(output).not.toContain(pickup.placeId);
+    expect(output).not.toContain(String(pickup.latitude));
+    expect(output).not.toContain(pickup.displayAddress);
+    diagnostic.mockRestore();
+  });
+
   it("rejects invalid capacity, date order, terms, access selections and idempotency keys", async () => {
     await expect(createPendingBooking(submission({ quote: { ...quote, passengers: 4, luggage: 1 } }), dependencies())).rejects.toBeInstanceOf(BookingValidationError);
     await expect(createPendingBooking(submission({ quote: { ...returnQuote(), returnDate: "2027-01-01" } }), dependencies())).rejects.toBeInstanceOf(BookingValidationError);
@@ -231,6 +245,12 @@ describe("Phase 5B server-only Supabase persistence", () => {
 });
 
 describe("Phase 5B public behaviour and scope", () => {
+  it("keeps the invalid request response unchanged", async () => {
+    const response = await POST(new Request("https://example.test/api/bookings", { method: "POST", body: "not-json" }));
+    expect(response.status).toBe(400);
+    expect(await response.json()).toEqual({ error: "Invalid booking request." });
+  });
+
   it("shows the authoritative reference, deposit and balance without false payment or confirmation", () => {
     const html = renderToStaticMarkup(<BookingSavedCard booking={{ bookingReference: "BAC-A1B2C3D4", status: "pending_payment", totalPence: 9730, depositPercentage: 25, depositPence: 2433, balancePence: 7297 }} />);
     expect(html).toContain("Booking details saved");

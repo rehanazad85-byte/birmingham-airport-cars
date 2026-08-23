@@ -86,7 +86,10 @@ function validateSubmission(value: unknown, now: Date): BookingSubmission {
 
 function asPence(pounds: number) {
   const pence = Math.round((pounds + Number.EPSILON) * 100);
-  if (!Number.isSafeInteger(pence) || pence < 0) throw new BookingRevalidationError();
+  if (!Number.isSafeInteger(pence) || pence < 0) {
+    console.error("BOOKING_FARE_REVALIDATION_FAILED", { reason: "invalid_amount" });
+    throw new BookingRevalidationError();
+  }
   return pence;
 }
 
@@ -103,7 +106,10 @@ function createBookingReference() {
 }
 
 function summaryFromRecord(record: BookingRecord): SavedBookingSummary {
-  if (record.status !== "pending_payment") throw new BookingRevalidationError();
+  if (record.status !== "pending_payment") {
+    console.error("BOOKING_RESPONSE_VALIDATION_FAILED", { reason: "invalid_booking_status" });
+    throw new BookingRevalidationError();
+  }
   return {
     bookingReference: record.booking_reference,
     status: "pending_payment",
@@ -127,13 +133,23 @@ export async function createPendingBooking(value: unknown, options: BookingServi
   let returnRoute: RouteDistanceResult | null;
   try {
     [pickup, destination] = await Promise.all([verifyPlace(submission.quote.pickup), verifyPlace(submission.quote.destination)]);
-    if (!isSelectedPlace(pickup) || !isSelectedPlace(destination) || pickup.placeId !== submission.quote.pickup.placeId || destination.placeId !== submission.quote.destination.placeId) throw new Error("Place mismatch");
+  } catch {
+    throw new BookingRevalidationError();
+  }
+  if (!isSelectedPlace(pickup) || !isSelectedPlace(destination) || pickup.placeId !== submission.quote.pickup.placeId || destination.placeId !== submission.quote.destination.placeId) {
+    console.error("BOOKING_PLACE_VERIFICATION_FAILED", { reason: "place_mismatch" });
+    throw new BookingRevalidationError();
+  }
+  try {
     [outwardRoute, returnRoute] = await Promise.all([
       calculateRoute({ latitude: pickup.latitude, longitude: pickup.longitude }, { latitude: destination.latitude, longitude: destination.longitude }),
       submission.quote.journeyType === "return" ? calculateRoute({ latitude: destination.latitude, longitude: destination.longitude }, { latitude: pickup.latitude, longitude: pickup.longitude }) : Promise.resolve(null),
     ]);
-    if (!isValidRoute(outwardRoute) || (returnRoute && !isValidRoute(returnRoute))) throw new Error("Invalid route");
   } catch {
+    throw new BookingRevalidationError();
+  }
+  if (!isValidRoute(outwardRoute) || (returnRoute && !isValidRoute(returnRoute))) {
+    console.error("BOOKING_ROUTE_REVALIDATION_FAILED", { reason: "invalid_route" });
     throw new BookingRevalidationError();
   }
 
@@ -146,13 +162,19 @@ export async function createPendingBooking(value: unknown, options: BookingServi
   const outwardBaseFare = fixedJourney?.fixedSaloonFare ?? getIllustrativeFare(outwardRoute.distanceMiles, "saloon");
   const outwardCharges = getJourneyAirportCharges(airports.pickupAirport, airports.destinationAirport, outwardAccess);
   const outwardFare = calculateFinalFare(outwardBaseFare, outwardVehicleFare, outwardCharges);
-  if (!outwardFare) throw new BookingRevalidationError();
+  if (!outwardFare) {
+    console.error("BOOKING_FARE_REVALIDATION_FAILED", { reason: "outward_fare_unavailable" });
+    throw new BookingRevalidationError();
+  }
 
   const returnCharges = returnAccess ? getJourneyAirportCharges(airports.destinationAirport, airports.pickupAirport, returnAccess) : [];
   const returnVehicleFare = returnRoute ? fixedJourney?.fixedSaloonFare !== undefined ? getVehicleAdjustedFixedFare(fixedJourney.fixedSaloonFare, quote.vehicle) : getRouteAwareIllustrativeFare(undefined, returnRoute.distanceMiles, quote.vehicle) : null;
   const returnBaseFare = returnRoute ? fixedJourney?.fixedSaloonFare ?? getIllustrativeFare(returnRoute.distanceMiles, "saloon") : null;
   const returnFare = returnRoute ? calculateReturnFare(outwardFare, returnBaseFare, returnVehicleFare, returnCharges) : null;
-  if (quote.journeyType === "return" && !returnFare) throw new BookingRevalidationError();
+  if (quote.journeyType === "return" && !returnFare) {
+    console.error("BOOKING_FARE_REVALIDATION_FAILED", { reason: "return_fare_unavailable" });
+    throw new BookingRevalidationError();
+  }
 
   const totalPence = asPence(returnFare?.finalFare ?? outwardFare.finalFare);
   const deposit = calculateBookingDeposit(totalPence, options.depositPolicy ?? getBookingDepositPolicy());
@@ -163,7 +185,10 @@ export async function createPendingBooking(value: unknown, options: BookingServi
     outwardAccess, returnAccess, details: submission.details,
   })).digest("hex");
   const reference = (options.createReference ?? createBookingReference)();
-  if (!/^BAC-[A-F0-9]{8}$/.test(reference)) throw new BookingRevalidationError();
+  if (!/^BAC-[A-F0-9]{8}$/.test(reference)) {
+    console.error("BOOKING_REFERENCE_VALIDATION_FAILED", { reason: "invalid_reference" });
+    throw new BookingRevalidationError();
+  }
 
   const record: BookingRecord = {
     booking_reference: reference,

@@ -95,7 +95,10 @@ export async function computeDrivingRoute(
   } = {},
 ): Promise<RouteDistanceResult> {
   const apiKey = options.apiKey ?? process.env.GOOGLE_ROUTES_API_KEY;
-  if (!apiKey) throw new RouteDistanceError("MISSING_API_KEY");
+  if (!apiKey) {
+    console.error("BOOKING_ROUTE_REVALIDATION_FAILED", { reason: "missing_api_key" });
+    throw new RouteDistanceError("MISSING_API_KEY");
+  }
 
   const fetchImplementation = options.fetchImplementation ?? fetch;
   let response: Response;
@@ -116,16 +119,24 @@ export async function computeDrivingRoute(
       }),
       cache: "no-store",
     });
-  } catch {
+  } catch (error) {
+    console.error("BOOKING_ROUTE_REVALIDATION_FAILED", { reason: "request_failed", errorName: error instanceof Error ? error.name : "UnknownError" });
     throw new RouteDistanceError("ROUTES_API_ERROR");
   }
 
-  if (!response.ok) throw new RouteDistanceError("ROUTES_API_ERROR");
+  if (!response.ok) {
+    console.error("BOOKING_ROUTE_REVALIDATION_FAILED", { reason: "google_routes_non_2xx", status: response.status });
+    throw new RouteDistanceError("ROUTES_API_ERROR");
+  }
 
   try {
     return normaliseRoutesResponse(await response.json());
   } catch (error) {
-    if (error instanceof RouteDistanceError) throw error;
+    if (error instanceof RouteDistanceError) {
+      console.error("BOOKING_ROUTE_REVALIDATION_FAILED", { reason: error.code.toLowerCase() });
+      throw error;
+    }
+    console.error("BOOKING_ROUTE_REVALIDATION_FAILED", { reason: "invalid_response", errorName: error instanceof Error ? error.name : "UnknownError" });
     throw new RouteDistanceError("ROUTES_API_ERROR");
   }
 }
