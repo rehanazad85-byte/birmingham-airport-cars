@@ -35,6 +35,15 @@ describe("Phase 5A quote handoff", () => {
     expect(quote.returnRoute?.distanceMiles).toBe(23);
   });
 
+  it("preserves independent Birmingham Airport access selections for server revalidation", () => {
+    const outbound = calculateFinalFare(47, 47, [])!;
+    const returnFare = calculateReturnFare(outbound, 47, 47, [])!;
+    const quote: QuoteHandoffPayload = { ...oneWayQuote, journeyType: "return", returnDate: "2027-01-20", returnTime: "15:45", returnRoute: route, returnFare, oneWayFare: undefined, outwardBirminghamAccess: "drop-and-go", returnBirminghamAccess: "free" };
+    expect(isQuoteHandoffPayload(quote)).toBe(true);
+    expect(isQuoteHandoffPayload({ ...quote, returnBirminghamAccess: "invented" })).toBe(false);
+    expect(isQuoteHandoffPayload({ ...oneWayQuote, returnBirminghamAccess: "drop-and-go" })).toBe(false);
+  });
+
   it("rejects tampered, zero and internally inconsistent price data", () => {
     expect(isQuoteHandoffPayload({ ...oneWayQuote, oneWayFare: { ...oneWayFare, finalFare: 1 } })).toBe(false);
     expect(isQuoteHandoffPayload({ ...oneWayQuote, outboundRoute: { ...route, distanceMiles: 0 } })).toBe(false);
@@ -50,4 +59,3 @@ describe("Phase 5A quote handoff", () => {
     expect(readQuoteHandoff("expired", store, 1000 + bookingHandoffLifetimeMs + 1)).toEqual({ status: "expired" });
   });
 });
-

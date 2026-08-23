@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState, type FormEvent } from "react";
 import { getQuoteTotal, readQuoteHandoff, type QuoteHandoffPayload, type QuoteHandoffReadResult } from "@/lib/booking-handoff";
+import { isSavedBookingSummary, savedBookingStoragePrefix, type SavedBookingSummary } from "@/lib/booking-record";
 import { createEmptyBookingDetails, readBookingDraft, saveBookingDraft, validateBookingDetails, type BookingDetails, type BookingFieldErrors, type FlightDetails } from "@/lib/booking-validation";
 import { formatGBP } from "@/lib/pricing";
 import { formatDistanceMiles, formatDurationSeconds } from "@/lib/routes";
@@ -78,19 +79,47 @@ export function BookingReviewCard({ quote, details }: { quote: QuoteHandoffPaylo
   </article>;
 }
 
+export function BookingSavedCard({ booking }: { booking: SavedBookingSummary }) {
+  return <div role="status" className="rounded-2xl border border-gold-500/30 bg-white p-6 shadow-premium">
+    <p className="text-sm font-semibold uppercase tracking-widest text-gold-600">Secure booking record created</p>
+    <h2 className="mt-2 font-serif text-3xl font-semibold">Booking details saved</h2>
+    <dl className="mt-6 grid gap-4 sm:grid-cols-2">
+      <div><dt className="text-xs uppercase tracking-wider text-black/50">Booking reference</dt><dd className="mt-1 break-all text-lg font-semibold">{booking.bookingReference}</dd></div>
+      <div><dt className="text-xs uppercase tracking-wider text-black/50">Total journey price</dt><dd className="mt-1 font-serif text-2xl font-semibold">{formatGBP(booking.totalPence / 100)}</dd></div>
+      <div><dt className="text-xs uppercase tracking-wider text-black/50">Deposit payable at the secure payment step</dt><dd className="mt-1 font-semibold">{formatGBP(booking.depositPence / 100)} ({booking.depositPercentage}%)</dd></div>
+      <div><dt className="text-xs uppercase tracking-wider text-black/50">Remaining balance</dt><dd className="mt-1 font-semibold">{formatGBP(booking.balancePence / 100)}</dd></div>
+    </dl>
+    <p className="mt-6 border-t border-black/10 pt-5 leading-7 text-black/65">No payment has been taken and your booking is not yet confirmed.</p>
+  </div>;
+}
+
 export function BookingForm() {
   const searchParams = useSearchParams();
   const [handoff, setHandoff] = useState<QuoteHandoffReadResult | null>(null);
   const [details, setDetails] = useState<BookingDetails>(createEmptyBookingDetails);
   const [errors, setErrors] = useState<BookingFieldErrors>({});
-  const [stage, setStage] = useState<"details" | "review" | "ready">("details");
+  const [stage, setStage] = useState<"details" | "review" | "saved">("details");
+  const [savedBooking, setSavedBooking] = useState<SavedBookingSummary | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveError, setSaveError] = useState("");
   const [draftReady, setDraftReady] = useState(false);
 
   useEffect(() => {
     const quoteId = searchParams.get("quote");
     const result = readQuoteHandoff(quoteId, window.sessionStorage);
     setHandoff(result);
-    if (quoteId && result.status === "valid") setDetails(readBookingDraft(quoteId, window.sessionStorage) ?? createEmptyBookingDetails());
+    if (quoteId && result.status === "valid") {
+      setDetails(readBookingDraft(quoteId, window.sessionStorage) ?? createEmptyBookingDetails());
+      const rawSaved = window.sessionStorage.getItem(`${savedBookingStoragePrefix}${quoteId}`);
+      if (rawSaved) {
+        try {
+          const existing: unknown = JSON.parse(rawSaved);
+          if (isSavedBookingSummary(existing)) { setSavedBooking(existing); setStage("saved"); }
+        } catch {
+          window.sessionStorage.removeItem(`${savedBookingStoragePrefix}${quoteId}`);
+        }
+      }
+    }
     setDraftReady(true);
   }, [searchParams]);
   useEffect(() => {
@@ -102,9 +131,30 @@ export function BookingForm() {
   if (handoff.status !== "valid") return <div role="alert" className="rounded-2xl border border-gold-500/30 bg-white p-6 shadow-premium"><h2 className="font-serif text-3xl font-semibold">Quotation details unavailable</h2><p className="mt-3 leading-7 text-black/65">{handoff.status === "expired" ? "This quotation handoff has expired." : "The booking page needs a valid quotation from the calculator."} Please calculate the journey again so its route and fare can be carried here safely.</p><Link className="mt-5 inline-block rounded-lg bg-ink px-5 py-3 font-semibold text-white" href="/book-now">Return to calculator</Link></div>;
   const quote = handoff.quote;
 
-  if (stage === "ready") return <div className="space-y-6"><div role="status" className="rounded-2xl border border-gold-500/30 bg-white p-6 shadow-premium"><p className="text-sm font-semibold uppercase tracking-widest text-gold-600">Phase 5A complete</p><h2 className="mt-2 font-serif text-3xl font-semibold">Booking details ready</h2><p className="mt-3 leading-7 text-black/65">Your journey and customer details are ready for the secure payment step. No booking has been confirmed and no payment has been taken in this phase.</p></div><BookingReviewCard quote={quote} details={details} /></div>;
+  if (stage === "saved" && savedBooking) return <div className="space-y-6"><BookingSavedCard booking={savedBooking} /><div className="rounded-xl border border-black/10 bg-cream p-5"><p className="font-semibold">{quote.pickup.displayAddress} → {quote.destination.displayAddress}</p><p className="mt-2 text-sm text-black/65">{quote.journeyDate} at {quote.journeyTime} · {quote.journeyType === "return" ? "Return journey" : "One-way journey"}</p></div></div>;
 
-  if (stage === "review") return <div className="space-y-5"><BookingReviewCard quote={quote} details={details} /><div className="grid gap-3 sm:grid-cols-2"><button type="button" onClick={() => setStage("details")} className="min-h-12 rounded-lg border border-ink px-5 py-3 font-semibold">Edit details</button><button type="button" onClick={() => setStage("ready")} className="min-h-12 rounded-lg bg-gold-500 px-5 py-3 font-semibold text-black">Continue booking</button></div><p className="text-center text-sm text-black/60">No payment will be taken and the booking is not yet confirmed.</p></div>;
+  const saveBooking = async () => {
+    if (isSaving) return;
+    const quoteId = searchParams.get("quote");
+    if (!quoteId) return setSaveError("Your quotation is unavailable. Please calculate your journey again.");
+    setIsSaving(true);
+    setSaveError("");
+    try {
+      const response = await fetch("/api/bookings", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ idempotencyKey: quoteId, quote, details }) });
+      const result: unknown = await response.json();
+      if (!response.ok || !result || typeof result !== "object" || !("booking" in result) || !isSavedBookingSummary(result.booking)) throw new Error("The journey could not be securely revalidated. Please recalculate your quotation or contact us.");
+      window.sessionStorage.setItem(`${savedBookingStoragePrefix}${quoteId}`, JSON.stringify(result.booking));
+      setSavedBooking(result.booking);
+      setStage("saved");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } catch (error) {
+      setSaveError(error instanceof Error ? error.message : "Secure booking is currently unavailable. Please try again or contact us.");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  if (stage === "review") return <div className="space-y-5"><BookingReviewCard quote={quote} details={details} /><div className="grid gap-3 sm:grid-cols-2"><button type="button" onClick={() => setStage("details")} disabled={isSaving} className="min-h-12 rounded-lg border border-ink px-5 py-3 font-semibold disabled:opacity-60">Edit details</button><button type="button" onClick={saveBooking} disabled={isSaving} className="min-h-12 rounded-lg bg-gold-500 px-5 py-3 font-semibold text-black disabled:opacity-60">{isSaving ? "Saving booking…" : "Continue booking"}</button></div>{saveError && <p role="alert" className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">{saveError}</p>}<p className="text-center text-sm text-black/60">No payment will be taken and the booking is not yet confirmed.</p></div>;
 
   const update = <K extends keyof BookingDetails>(field: K, value: BookingDetails[K]) => { setDetails((current) => ({ ...current, [field]: value })); setErrors((current) => ({ ...current, [field]: undefined })); };
   const submit = (event: FormEvent<HTMLFormElement>) => {

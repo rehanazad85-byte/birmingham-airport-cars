@@ -73,11 +73,11 @@ export function QuoteForm({compact=false}:{compact?:boolean}){
  };
  const continueBooking=()=>{
   if(!pickupPlace||!destinationPlace||!outboundRoute)return setBookingHandoffError(true);
-  const common={pickup:pickupPlace,destination:destinationPlace,journeyDate,journeyTime,vehicle,passengers,luggage,outboundRoute,involvesAirport:Boolean(journeyAirports.pickupAirport||journeyAirports.destinationAirport||pickupPlace.types.includes("airport")||destinationPlace.types.includes("airport"))};
+  const common={pickup:pickupPlace,destination:destinationPlace,journeyDate,journeyTime,vehicle,passengers,luggage,outboundRoute,outwardBirminghamAccess:birminghamAccess,involvesAirport:Boolean(journeyAirports.pickupAirport||journeyAirports.destinationAirport||pickupPlace.types.includes("airport")||destinationPlace.types.includes("airport"))};
   let quote:QuoteHandoffPayload;
   if(journeyType==="return"){
    if(!returnDate||!returnTime||!returnRouteResult||!returnFareCalculation)return setBookingHandoffError(true);
-   quote={...common,journeyType,returnDate,returnTime,returnRoute:returnRouteResult,returnFare:returnFareCalculation};
+   quote={...common,journeyType,returnDate,returnTime,returnRoute:returnRouteResult,returnFare:returnFareCalculation,returnBirminghamAccess};
   }else{
    if(!fareCalculation)return setBookingHandoffError(true);
    quote={...common,journeyType,oneWayFare:fareCalculation};

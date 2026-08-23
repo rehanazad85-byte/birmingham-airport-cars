@@ -2,6 +2,7 @@ import type { SelectedPlace } from "@/lib/places";
 import type { FareCalculation, ReturnFareCalculation, VehicleType } from "@/lib/pricing";
 import type { JourneyType } from "@/lib/quote-calculator";
 import type { RouteDistanceResult } from "@/lib/routes";
+import type { BirminghamAccessOption } from "@/lib/airport-access";
 
 export const bookingHandoffVersion = 1;
 export const bookingHandoffLifetimeMs = 30 * 60 * 1000;
@@ -23,6 +24,8 @@ export interface QuoteHandoffPayload {
   oneWayFare?: FareCalculation;
   returnFare?: ReturnFareCalculation;
   involvesAirport: boolean;
+  outwardBirminghamAccess?: BirminghamAccessOption;
+  returnBirminghamAccess?: BirminghamAccessOption;
 }
 
 interface StoredQuoteHandoff {
@@ -88,10 +91,11 @@ export function isQuoteHandoffPayload(value: unknown): value is QuoteHandoffPayl
     nonEmptyString(quote.journeyDate) && nonEmptyString(quote.journeyTime) &&
     vehicles.includes(quote.vehicle as VehicleType) && Number.isInteger(quote.passengers) && (quote.passengers ?? 0) > 0 &&
     Number.isInteger(quote.luggage) && (quote.luggage ?? -1) >= 0 && isRoute(quote.outboundRoute) &&
-    typeof quote.involvesAirport === "boolean";
+    typeof quote.involvesAirport === "boolean" &&
+    (quote.outwardBirminghamAccess === undefined || quote.outwardBirminghamAccess === "free" || quote.outwardBirminghamAccess === "drop-and-go");
   if (!commonValid) return false;
-  if (quote.journeyType === "one-way") return isFareCalculation(quote.oneWayFare) && quote.returnFare === undefined && quote.returnRoute === undefined && quote.returnDate === undefined && quote.returnTime === undefined;
-  if (quote.journeyType === "return") return nonEmptyString(quote.returnDate) && nonEmptyString(quote.returnTime) && isRoute(quote.returnRoute) && isReturnFareCalculation(quote.returnFare) && quote.oneWayFare === undefined;
+  if (quote.journeyType === "one-way") return isFareCalculation(quote.oneWayFare) && quote.returnFare === undefined && quote.returnRoute === undefined && quote.returnDate === undefined && quote.returnTime === undefined && quote.returnBirminghamAccess === undefined;
+  if (quote.journeyType === "return") return nonEmptyString(quote.returnDate) && nonEmptyString(quote.returnTime) && isRoute(quote.returnRoute) && isReturnFareCalculation(quote.returnFare) && quote.oneWayFare === undefined && (quote.returnBirminghamAccess === undefined || quote.returnBirminghamAccess === "free" || quote.returnBirminghamAccess === "drop-and-go");
   return false;
 }
 
@@ -130,4 +134,3 @@ export function readQuoteHandoff(id: string | null, storage: BookingStorage, now
 export function getQuoteTotal(quote: QuoteHandoffPayload): number {
   return quote.journeyType === "return" ? quote.returnFare!.finalFare : quote.oneWayFare!.finalFare;
 }
-
