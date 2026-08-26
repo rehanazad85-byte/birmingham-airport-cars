@@ -123,6 +123,24 @@ describe("Phase 4A SEO route architecture", () => {
     }
   });
 
+  it("strengthens Nottingham to Heathrow taxi intent without changing route authority", async () => {
+    const slug = "nottingham-to-heathrow-airport";
+    const route = expandedRoutes[slug];
+    const html = renderToStaticMarkup(<ExpandedAirportRoutePage route={route} />);
+    const metadata = await generateMetadata({ params: Promise.resolve({ slug }) });
+
+    expect(route.title).toBe("Nottingham to Heathrow Airport Taxi");
+    expect(route.fixedSaloonFare).toBeUndefined();
+    expect(metadata.alternates?.canonical).toBe(`/airport-transfers/${slug}`);
+    for (const phrase of ["Nottingham to Heathrow taxi", "taxi from Nottingham to Heathrow", "Nottingham city", "West Bridgford", "Beeston", "Terminal 2, 3, 4 or 5", "live exact-address calculator", "Heathrow to Nottingham journey"]) {
+      expect(html).toContain(phrase);
+    }
+    expect(html).toContain("Calculate your live fare");
+    expect(html).not.toMatch(/£\d+ Saloon journey fare/);
+    expect(renderToStaticMarkup(<ExpandedAirportRoutePage route={expandedRoutes["coventry-to-heathrow-airport"]} />)).not.toContain("taxi from Nottingham to Heathrow");
+    expect(renderToStaticMarkup(<ExpandedAirportRoutePage route={expandedRoutes["derby-to-heathrow-airport"]} />)).not.toContain("taxi from Nottingham to Heathrow");
+  });
+
   it("publishes four Wave 1 BHX routes with live pricing and no invented fixed fares", () => {
     const slugs = ["leicester", "coventry", "nottingham", "derby"] as const;
     const routeSpecificTerms = {
