@@ -141,6 +141,24 @@ describe("Phase 4A SEO route architecture", () => {
     expect(renderToStaticMarkup(<ExpandedAirportRoutePage route={expandedRoutes["derby-to-heathrow-airport"]} />)).not.toContain("taxi from Nottingham to Heathrow");
   });
 
+  it("shows a Nottingham-only representative fleet selection from verified capacity data", () => {
+    const html = renderToStaticMarkup(<ExpandedAirportRoutePage route={expandedRoutes["nottingham-to-heathrow-airport"]} />);
+
+    expect(html).toContain("A selection from the wider fleet");
+    expect(html).toContain("These are representative options rather than the complete fleet.");
+    expect(html).toContain("Saloon");
+    expect(html).toContain("Executive");
+    expect(html).toContain("Large MPV");
+    expect(html).toContain("Up to 3 passengers with up to 2 large suitcases, or 4 passengers with no large suitcases.");
+    expect(html).toContain("Up to 8 passengers and 8 large suitcases.");
+
+    for (const slug of ["coventry-to-heathrow-airport", "derby-to-heathrow-airport"] as const) {
+      const neighbouringHtml = renderToStaticMarkup(<ExpandedAirportRoutePage route={expandedRoutes[slug]} />);
+      expect(neighbouringHtml).not.toContain("A selection from the wider fleet");
+      expect(expandedRoutes[slug].representativeVehicleTypes).toBeUndefined();
+    }
+  });
+
   it("publishes four Wave 1 BHX routes with live pricing and no invented fixed fares", () => {
     const slugs = ["leicester", "coventry", "nottingham", "derby"] as const;
     const routeSpecificTerms = {

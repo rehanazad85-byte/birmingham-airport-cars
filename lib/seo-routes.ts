@@ -1,5 +1,6 @@
 import { airportRoutes, airportRouteSlugs } from "@/lib/airport-routes";
 import { locations } from "@/lib/locations";
+import type { VehicleType } from "@/lib/pricing";
 import { seoLocationSlugs, seoLocations, type SeoLocationSlug } from "@/lib/seo-locations";
 import { airportHubSlugs, seoAirports, seoAirportsByCode, type AirportHubSlug } from "@/lib/seo-airports";
 
@@ -45,12 +46,14 @@ export type ExpandedRoute = PublishedRouteSummary & {
   routeConsiderations: string;
   supportingParagraphs: readonly string[];
   faqs: Array<{ question: string; answer: string }>;
+  representativeVehicleTypes?: readonly VehicleType[];
 };
 
 type ExpandedRouteDetails = {
   introduction?: readonly [string, string];
   supportingParagraphs?: readonly string[];
   routeSpecificFaqs?: Array<{ question: string; answer: string }>;
+  representativeVehicleTypes?: readonly VehicleType[];
 };
 
 const expandedRoute = (
@@ -77,6 +80,7 @@ const expandedRoute = (
     ],
     routeConsiderations,
     supportingParagraphs: details.supportingParagraphs ?? [],
+    representativeVehicleTypes: details.representativeVehicleTypes,
     faqs: details.routeSpecificFaqs ? [
       ...details.routeSpecificFaqs,
       { question: `How much is a taxi from ${location.name} to ${airport.name}?`, answer: fixedSaloonFare === undefined ? "Enter and select the exact pickup and airport addresses in the quote form. The existing live-distance pricing engine calculates the journey and adds the applicable airport access charge separately." : `The approved underlying Saloon transfer fare is £${fixedSaloonFare}. The applicable airport access charge is added separately, and other vehicle options use the existing vehicle pricing.` },
@@ -139,7 +143,7 @@ export const expandedRoutes: Record<ExpandedRouteSlug, ExpandedRoute> = {
     { question: "Can I book a taxi from Nottingham to Heathrow Airport?", answer: "Yes. Select the complete Nottingham pickup and correct Heathrow terminal in the quote form. The service is a pre-booked private transfer rather than a local rank taxi." },
     { question: "Can I book Heathrow Airport back to Nottingham?", answer: "Yes. Add the return date and time, select the exact Nottingham destination and provide the confirmed Heathrow terminal and inbound flight details for collection planning." },
     { question: "How much is a Nottingham to Heathrow taxi?", answer: "There is no approved fixed fare for this route. Use the live exact-address calculator to price the selected Nottingham pickup, Heathrow terminal and vehicle, with airport access handled separately." },
-  ] }),
+  ], representativeVehicleTypes: ["saloon", "executive", "large-mpv"] }),
   "birmingham-to-manchester-airport": expandedRoute("birmingham-to-manchester-airport", "birmingham", "manchester-airport", undefined, "Birmingham addresses range from central hotels and businesses to residential districts on different approaches to the motorway network. The exact pickup and Manchester Airport terminal information are therefore used for the quotation.", { supportingParagraphs: ["Manchester Airport to Birmingham can be added as the return leg without creating a second route page. The customer should provide the inbound flight and terminal, then select the precise Birmingham destination for the journey home."], routeSpecificFaqs: [
     { question: "Can I book Manchester Airport back to Birmingham?", answer: "Yes. Add the return journey and provide the Manchester terminal and inbound flight details together with the exact Birmingham destination." },
     { question: "Is there a fixed Birmingham to Manchester Airport fare?", answer: "No approved fixed fare is published for this route. The existing calculator prices the exact selected addresses and vehicle, then adds Manchester Airport access separately." },
