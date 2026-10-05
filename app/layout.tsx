@@ -16,8 +16,7 @@ export const metadata: Metadata = {
   description: "Fixed-price airport transfers across Birmingham and the West Midlands.",
   verification: {
     other: {
-      "ahrefs-site-verification": "<meta name="ahrefs-site-verification" content="b1fcba24fbbf3a2a0f49e1dfd06a74899488eab90e75b5b51895bc71544bcec9">
-",
+      "ahrefs-site-verification": "b1fcba24fbbf3a2a0f49e1dfd06a74899488eab90e75b5b51895bc71544bcec9",
     },
   },
 };
