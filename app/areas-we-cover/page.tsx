@@ -13,7 +13,7 @@ export default function Page() {
   return (
     <>
       <PageHero eyebrow="Local coverage" title="Airport transfers across the West Midlands">
-        <p>Explore dedicated local guidance for pre-booked airport travel from towns across the region.</p>
+        <p>Fixed price airport taxis and transfers from towns across the West Midlands, including Walsall, Wolverhampton, Sutton Coldfield and Solihull. Pick your town for local pickup details and a quote.</p>
       </PageHero>
       <section className="mx-auto max-w-7xl px-4 py-16 lg:px-8">
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
