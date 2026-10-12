@@ -3,8 +3,8 @@ import Link from "next/link";
 import { airportHubSlugs, seoAirports } from "@/lib/seo-airports";
 
 export const metadata: Metadata = {
-  title: "Airport Transfers from Birmingham & the West Midlands",
-  description: "Explore private airport transfers to Birmingham, Heathrow, Gatwick, Manchester, East Midlands, Luton and Stansted airports.",
+  title: { absolute: "Birmingham Airport Transfers | Fixed-Price Taxis" },
+  description: "Fixed-price airport transfers from Birmingham and the West Midlands to BHX, Heathrow, Gatwick, Manchester and more. 24/7, flight monitoring.",
   alternates: { canonical: "/airport-transfers" },
 };
 

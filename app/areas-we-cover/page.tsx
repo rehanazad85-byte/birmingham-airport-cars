@@ -1,6 +1,13 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { PageHero } from "@/components/PageHero";
 import { locations, locationSlugs } from "@/lib/locations";
+
+export const metadata: Metadata = {
+  title: { absolute: "Airport Taxi Coverage Across the West Midlands" },
+  description: "Fixed-price airport taxis from Walsall, Wolverhampton, Sutton Coldfield, Solihull and across the West Midlands. 24/7 service. Call 07474 234244.",
+  alternates: { canonical: "/areas-we-cover" },
+};
 
 export default function Page() {
   return (

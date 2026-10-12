@@ -5,7 +5,7 @@ import { CarFront, MapPinned, Plane, UsersRound } from "lucide-react";
 const baseUrl = "https://birminghamairportcars.co.uk";
 
 export const metadata: Metadata = {
-  title: "Long Distance Taxi Service | Pre-booked UK Journeys",
+  title: { absolute: "Long-Distance Taxi from Birmingham | Fixed Fares" },
   description: "Request a pre-booked long-distance taxi quote for suitable UK journeys, with door-to-door travel, vehicle choice and exact-address pricing.",
   alternates: { canonical: "/long-distance-taxi" },
   openGraph: { title: "Long Distance Taxi Service | Birmingham Airport Cars", description: "Pre-book suitable long-distance private-hire journeys with exact-address pricing and vehicle options.", url: "/long-distance-taxi" },

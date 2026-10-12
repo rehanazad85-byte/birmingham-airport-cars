@@ -1,21 +1,15 @@
+import type { Metadata } from "next";
 import { PageHero } from "@/components/PageHero";
 
-export default function Page() {
-  const organizationJsonLd = {
-    "@context": "https://schema.org",
-    "@type": "Organization",
-    name: "Birmingham Airport Cars",
-    url: "https://birminghamairportcars.co.uk",
-    telephone: "+447474234244",
-    email: "info@birminghamairportcars.co.uk",
-  };
+export const metadata: Metadata = {
+  title: { absolute: "Contact Birmingham Airport Cars | 07474 234244" },
+  description: "Contact Birmingham Airport Cars for fixed-price airport transfers. Call 07474 234244, available 24/7, for Birmingham Airport and West Midlands taxis.",
+  alternates: { canonical: "/contact" },
+};
 
+export default function Page() {
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
-      />
       <PageHero eyebrow="Contact" title="Speak to Birmingham Airport Cars">
         <p>For airport transfer enquiries, business travel and future account applications.</p>
       </PageHero>
