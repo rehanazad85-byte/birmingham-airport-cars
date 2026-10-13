@@ -16,7 +16,6 @@ const publicRoutes = [
   "/contact",
   "/long-distance-taxi",
   "/privacy-policy",
-  "/terms",
   "/terms-and-conditions",
 ] as const;
 
