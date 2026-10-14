@@ -21,12 +21,41 @@ export const metadata: Metadata = {
   },
 };
 
+const siteSchema = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "LocalBusiness",
+      "@id": "https://birminghamairportcars.co.uk/#business",
+      name: "Birmingham Airport Cars",
+      url: "https://birminghamairportcars.co.uk",
+      telephone: "+447474234244",
+      email: "info@birminghamairportcars.co.uk",
+      areaServed: [
+        { "@type": "AdministrativeArea", name: "West Midlands, England" },
+        "Walsall", "Wolverhampton", "Sutton Coldfield", "West Bromwich",
+        "Dudley", "Solihull", "Cannock", "Birmingham",
+      ],
+      knowsAbout: ["Airport transfers", "Birmingham Airport taxi", "BHX transfers"],
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://birminghamairportcars.co.uk/#website",
+      url: "https://birminghamairportcars.co.uk",
+      name: "Birmingham Airport Cars",
+      inLanguage: "en-GB",
+      publisher: { "@id": "https://birminghamairportcars.co.uk/#business" },
+    },
+  ],
+};
+
 export default function RootLayout({ children }: { children: ReactNode }) {
   const measurementId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
 
   return (
     <html lang="en">
       <body>
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(siteSchema) }} />
         <Suspense fallback={null}>
           <GoogleAnalytics measurementId={measurementId} />
         </Suspense>

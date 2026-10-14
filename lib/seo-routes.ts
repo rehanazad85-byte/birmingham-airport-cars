@@ -73,7 +73,7 @@ const expandedRoute = (
     metaTitle: `${location.name} to ${airport.name} Taxi & Airport Transfer`,
     metaDescription: fixedSaloonFare === undefined
       ? `Book a private ${location.name} to ${airport.name} taxi. Get a live exact-address fare, choose a suitable vehicle and add a discounted return journey.`
-      : `Book a private ${location.name} to ${airport.name} transfer. Saloon journey fare £${fixedSaloonFare} before airport access charges, with exact-address quotes and return savings.`,
+      : `Private ${location.name} to ${airport.name} transfer. Saloon fare £${fixedSaloonFare} before airport access, with exact-address quotes and discounted returns.`,
     introduction: details.introduction ?? [
       `A pre-booked transfer from ${location.name} to ${airport.name} keeps passengers and luggage together from the selected address to the airport. ${fixedFareCopy}`,
       location.collectionContext,

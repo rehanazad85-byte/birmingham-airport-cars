@@ -207,7 +207,7 @@ export const airportRoutes: Record<AirportRouteSlug, AirportRoute> = {
     representativePickup: "Walsall town centre", representativePostcode: "WS1 1TP",
     distanceRange: "approximately 120–135 miles", journeyTimeRange: "typically around 2 hours 15 minutes–3 hours 15 minutes",
     metaTitle: "Walsall to Heathrow Airport Transfers",
-    metaDescription: "Plan a fixed-price Walsall to Heathrow Airport transfer with terminal-aware collection guidance, flight monitoring and vehicles for different luggage needs.",
+    metaDescription: "Plan a fixed-price Walsall to Heathrow Airport transfer with terminal-aware guidance, flight monitoring and vehicles for different luggage needs.",
     introduction: [
       "A pre-booked Walsall to Heathrow Airport transfer keeps passengers and luggage together for the longer journey to west London. Collection can be arranged from the address supplied in Walsall, Aldridge, Bloxwich, Pelsall, Willenhall or another nearby community.",
       "The M6 and wider motorway network can be affected by the time of day, so the pickup is planned around the exact address, terminal, airline check-in guidance and expected conditions rather than a single town-wide journey time.",
