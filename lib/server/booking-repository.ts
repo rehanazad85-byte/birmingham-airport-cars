@@ -21,6 +21,22 @@ function persistenceFailure(reason: string, status?: number): BookingPersistence
   return new BookingPersistenceError("UNAVAILABLE");
 }
 
+function logRequestError(label: string, error: unknown): void {
+  const details: Record<string, unknown> = {
+    name: error instanceof Error ? error.name : typeof error,
+    message: error instanceof Error ? error.message : String(error),
+  };
+
+  if (error instanceof Error && "cause" in error && error.cause && typeof error.cause === "object") {
+    const cause = error.cause as { code?: unknown; name?: unknown; message?: unknown };
+    if (typeof cause.code === "string") details.causeCode = cause.code;
+    if (typeof cause.name === "string") details.causeName = cause.name;
+    if (typeof cause.message === "string") details.causeMessage = cause.message;
+  }
+
+  console.error(label, details);
+}
+
 export function createSupabaseBookingRepository(options: {
   url?: string;
   serviceRoleKey?: string;
@@ -52,7 +68,8 @@ export function createSupabaseBookingRepository(options: {
           body: JSON.stringify(record),
           cache: "no-store",
         });
-      } catch {
+      } catch (error) {
+        logRequestError("BOOKING_PERSISTENCE_REQUEST_ERROR", error);
         throw persistenceFailure("request_failed");
       }
       if (!response.ok) throw persistenceFailure("supabase_non_2xx", response.status);
@@ -73,7 +90,8 @@ export function createSupabaseBookingRepository(options: {
         existingUrl.searchParams.set("idempotency_key", `eq.${record.idempotency_key}`);
         existingUrl.searchParams.set("limit", "1");
         existingResponse = await fetchImplementation(existingUrl, { headers, cache: "no-store" });
-      } catch {
+      } catch (error) {
+        logRequestError("BOOKING_PERSISTENCE_REPLAY_REQUEST_ERROR", error);
         throw persistenceFailure("replay_request_failed");
       }
       if (!existingResponse.ok) throw persistenceFailure("replay_non_2xx", existingResponse.status);
