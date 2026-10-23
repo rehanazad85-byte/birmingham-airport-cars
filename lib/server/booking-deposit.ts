@@ -5,7 +5,7 @@ export interface BookingDepositPolicy {
 
 export const defaultBookingDepositPolicy: BookingDepositPolicy = {
   percentage: 25,
-  minimumDepositPence: 0,
+  minimumDepositPence: 2000,
 };
 
 export function getBookingDepositPolicy(environment: Partial<NodeJS.ProcessEnv> = process.env): BookingDepositPolicy {
