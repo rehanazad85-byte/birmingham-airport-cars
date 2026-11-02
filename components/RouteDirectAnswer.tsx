@@ -24,37 +24,56 @@ export function RouteDirectAnswer({
   const hasRange =
     typeof pricing?.approvedTypicalFareMinimum === "number" &&
     typeof pricing?.approvedTypicalFareMaximum === "number";
+  const vehicleLabel = pricing ? vehicleCapacities[pricing.vehicleType].label.toLowerCase() : null;
 
   return (
     <section className="mx-auto max-w-7xl px-4 pt-12 lg:px-8" aria-labelledby="route-answer-heading">
       <div className="rounded-2xl border border-gold-500/30 bg-white p-7">
         <p className="text-sm font-semibold uppercase tracking-widest text-gold-600">Quick route answer</p>
         <h2 id="route-answer-heading" className="mt-2 font-serif text-3xl">
-          {location.name} to {airport.name}: fare, time and vehicle guidance
+          How much is a taxi from {location.name} to {airport.name}?
         </h2>
-        <p className="mt-4 max-w-5xl leading-7 text-black/65">
-          The representative pickup is {route.representativePickup}, {route.representativePostcode}. Distance guidance is {route.distanceRange.toLowerCase()}. Journey-time guidance is {route.journeyTimeRange.toLowerCase()}.
-        </p>
+
         {hasExample ? (
-          <p className="mt-3 max-w-5xl leading-7 text-black/65">
-            The approved underlying {vehicleCapacities[pricing.vehicleType].label.toLowerCase()} journey fare from {pricing.representativePickupName}, {pricing.representativePickupPostcode} to {pricing.destinationTerminal} is £{formatApprovedMoney(pricing.approvedExampleFare!)}. Applicable airport access charges are calculated separately.
+          <p className="mt-4 max-w-5xl text-lg leading-8 text-black/70">
+            For the representative journey from {pricing.representativePickupName}, {pricing.representativePickupPostcode} to {pricing.destinationTerminal}, the approved underlying {vehicleLabel} fare is <strong>£{formatApprovedMoney(pricing.approvedExampleFare!)}</strong>. Applicable airport access charges are calculated separately. Your exact quote uses the pickup address, vehicle and journey details you enter.
           </p>
-        ) : null}
+        ) : (
+          <p className="mt-4 max-w-5xl text-lg leading-8 text-black/70">
+            Birmingham Airport Cars provides pre-booked transfers from {location.name} to {airport.name}. Enter the exact pickup address, passenger and luggage requirements to receive a confirmed quotation before travel.
+          </p>
+        )}
+
+        <dl className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="rounded-xl bg-cream p-4">
+            <dt className="text-sm font-semibold text-black/60">Representative pickup</dt>
+            <dd className="mt-1 font-semibold">{route.representativePickup}, {route.representativePostcode}</dd>
+          </div>
+          <div className="rounded-xl bg-cream p-4">
+            <dt className="text-sm font-semibold text-black/60">Distance guidance</dt>
+            <dd className="mt-1 font-semibold">{route.distanceRange}</dd>
+          </div>
+          <div className="rounded-xl bg-cream p-4">
+            <dt className="text-sm font-semibold text-black/60">Journey-time guidance</dt>
+            <dd className="mt-1 font-semibold">{route.journeyTimeRange}</dd>
+          </div>
+          <div className="rounded-xl bg-cream p-4">
+            <dt className="text-sm font-semibold text-black/60">Largest vehicle option</dt>
+            <dd className="mt-1 font-semibold">Up to 8 passengers / 8 large cases</dd>
+          </div>
+        </dl>
+
         {hasRange ? (
-          <p className="mt-3 font-semibold">
-            Typical approved {vehicleCapacities[pricing.vehicleType].label.toLowerCase()} fare guidance: £{formatApprovedMoney(pricing.approvedTypicalFareMinimum!)}–£{formatApprovedMoney(pricing.approvedTypicalFareMaximum!)}.
+          <p className="mt-4 font-semibold">
+            Typical approved {vehicleLabel} fare guidance: £{formatApprovedMoney(pricing.approvedTypicalFareMinimum!)}–£{formatApprovedMoney(pricing.approvedTypicalFareMaximum!)}.
           </p>
         ) : null}
-        {!pricing ? (
-          <p className="mt-3 max-w-5xl leading-7 text-black/65">
-            Prices depend on the exact pickup address, vehicle and journey requirements. Enter your pickup location to receive a confirmed quotation.
-          </p>
-        ) : null}
-        <p className="mt-3 max-w-5xl leading-7 text-black/65">
-          Choose a vehicle for the complete passenger and large-suitcase totals. Saloon and Executive combinations are more restricted at four passengers; Estate, MPV and Large MPV options provide different capacities.
+
+        <p className="mt-5 max-w-5xl leading-7 text-black/65">
+          Vehicle choice depends on the complete passenger and luggage combination. Saloon and Executive vehicles have more restricted luggage capacity at four passengers; Estate, MPV and Large MPV options provide additional capacity.
         </p>
         <p className="mt-3 max-w-5xl leading-7 text-black/65">{authorityContent.directAnswerBookingNote}</p>
-        <Link href="/book-now" className="mt-5 inline-block font-semibold underline">Check your exact journey</Link>
+        <Link href="/book-now" className="mt-5 inline-block font-semibold underline">Get an exact quote</Link>
       </div>
     </section>
   );
