@@ -36,7 +36,7 @@ export function RouteDirectAnswer({
 
         {hasExample ? (
           <p className="mt-4 max-w-5xl text-lg leading-8 text-black/70">
-            For the representative journey from {pricing.representativePickupName}, {pricing.representativePickupPostcode} to {pricing.destinationTerminal}, the approved underlying {vehicleLabel} fare is <strong>£{formatApprovedMoney(pricing.approvedExampleFare!)}</strong>. Applicable airport access charges are calculated separately. Your exact quote uses the pickup address, vehicle and journey details you enter.
+            For a representative journey from {pricing.representativePickupName} ({pricing.representativePickupPostcode}) to {pricing.destinationTerminal}, the {vehicleLabel} fare is <strong>£{formatApprovedMoney(pricing.approvedExampleFare!)}</strong>, before any applicable airport access charges. Your exact fare depends on your pickup address, vehicle and journey details.
           </p>
         ) : (
           <p className="mt-4 max-w-5xl text-lg leading-8 text-black/70">
